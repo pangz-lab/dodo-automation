@@ -1,5 +1,5 @@
 import { BrowserSetting, UserCredentials, WalletInterface } from "../../../lib/model/wallet-interface";
-import { MetaMaskConfig } from "../../config/metamask-config";
+import { MetaMaskConfig } from "./metamask-config";
 
 export class MetaMaskWallet implements WalletInterface {
   _config: MetaMaskConfig;

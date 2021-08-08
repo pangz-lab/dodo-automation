@@ -1,4 +1,4 @@
-import { PlatformSettingInterface } from "../../lib/model/platform-setting-interface";
+import { PlatformSettingInterface } from "../../../lib/model/platform-setting-interface";
 
 export class BlockchainPlatform {
   _setting: PlatformSettingInterface;

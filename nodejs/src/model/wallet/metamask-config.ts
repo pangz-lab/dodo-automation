@@ -1,5 +1,5 @@
-import { AppConfig } from "./app-config";
-import { UserCredentials } from "../../lib/model/wallet-interface";
+import { AppConfig } from "../../config/app-config.js";
+import { UserCredentials } from "../../../lib/model/wallet-interface.js";
 
 export class MetaMaskConfig {
 

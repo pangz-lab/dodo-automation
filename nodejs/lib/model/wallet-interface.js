@@ -1,0 +1,4 @@
+class WalletInterface {
+  browserSetting() { }
+  userAccount() { }
+}
