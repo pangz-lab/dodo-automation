@@ -1,3 +1,5 @@
+import { BlockchainPlatformInterface } from "../../../lib/model/blockchain-platform-interface.js";
+
 class DodoExPlatform extends BlockchainPlatformInterface {
 
   #setting;
@@ -42,3 +44,5 @@ class DodoExPlatform extends BlockchainPlatformInterface {
   swapToken(sourceToken, destinationToken)  { }
   rebalancePool(sourceToken, destinationToken)  { }
 }
+
+export { DodoExPlatform };

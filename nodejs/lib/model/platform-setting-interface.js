@@ -1,3 +1,3 @@
-class PlatformSettingInterface {
+export default class PlatformSettingInterface {
   wallet;
 }

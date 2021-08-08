@@ -3,9 +3,10 @@ class AppConfig {
     version: '9.8.4_0',
     folder: 'nkbihfbeogaeaoehlefnkodbefgpgknn',
   };
+  static #appDataPath = process.env.LOCALAPPDATA;
   static #paths = {
-    extension: '%LocalAppData%/Google/Chrome/User Data/Default/Extensions',
-    profileData: '%LocalAppData%/Chromium/User Data/Profile 1',
+    extension: this.#appDataPath+'/Google/Chrome/User Data/Default/Extensions',
+    profileData: this.#appDataPath+'/Chromium/User Data/Profile 1',
   };
 
   static env() {
