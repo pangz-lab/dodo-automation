@@ -2,7 +2,11 @@ const puppeteer = require('puppeteer');
 const DODO_URL = 'https://app.dodoex.io/exchange/500G-500DC?network=bsc-mainnet';
 
 
+const DODO_FROM_TOKEN_TEXT = '#entry > div.MainPage_MainPage__1GwE3 > div > div.right > div > div > div.indexstyled__CardWrapperVertical-dodo__sc-9junse-5.iPoimT > div.indexstyled__Card-dodo__sc-9junse-6.cIITjA > div > div > div > div:nth-child(3) > div > div > div.TokenDisp__Name-dodo__onyo6i-1.gfuMgU';
+
 const DODO_FROM_TOKEN = '#entry > div.MainPage_MainPage__1GwE3 > div > div.right > div > div > div.indexstyled__CardWrapperVertical-dodo__sc-9junse-5.iPoimT > div.indexstyled__Card-dodo__sc-9junse-6.cIITjA > div > div > div > div:nth-child(3) > input';
+
+const DODO_TO_TOKEN_TEXT = '#entry > div.MainPage_MainPage__1GwE3 > div > div.right > div > div > div.indexstyled__CardWrapperVertical-dodo__sc-9junse-5.iPoimT > div.indexstyled__Card-dodo__sc-9junse-6.cIITjA > div > div > div > div:nth-child(6) > div > div > div.TokenDisp__Name-dodo__onyo6i-1.gfuMgU';
 
 const DODO_TO_TOKEN = '#entry > div.MainPage_MainPage__1GwE3 > div > div.right > div > div > div.indexstyled__CardWrapperVertical-dodo__sc-9junse-5.iPoimT > div.indexstyled__Card-dodo__sc-9junse-6.cIITjA > div > div > div > div:nth-child(6) > input';
 
@@ -29,14 +33,7 @@ const META_PROFILE_DIR = 'C:/Users/pangz/AppData/Local/Chromium/User Data/Profil
 const META_MASK_PWD = '#password';
 const META_MASK_LOGIN_BTN = '#app-content > div > div.main-container-wrapper > div > div > button > span';
 const META_MASK_EXTENSION = 'chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#unlock';
-// (async () => {
-//   const browser = await puppeteer.launch({ headless: false });
-//   const page = await browser.newPage();
-//   await page.goto(DODO_URL);
-//   await page.screenshot({ path: 'example.png' });
 
-//   // await browser.close();
-// })();
 
 (async () => {
   const pathToExtension = META_MASK_CHROME_EXT;
@@ -77,7 +74,13 @@ const META_MASK_EXTENSION = 'chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn
   // await page.waitForNavigation({
   //   waitUntil: 'load',
   // });
-  await swapToken(browser, dodoPage);
+  const isCorrectPairSet = await checkTokenPair(dodoPage);
+  if(isCorrectPairSet) {
+    console.log("Correct pair set");
+    await prepareSwap(browser, dodoPage);
+  } else {
+    console.log("Correct pair not set");
+  }
  
   //When page opens new tab or window
   // const [popup] = await Promise.all([
@@ -102,22 +105,44 @@ async function findTabWithUrl(browser, tabUrl) {
   return await browserContext.waitForTarget(target => target.url() === tabUrl);
 }
 
-async function swapToken(browser, page) {
-  // const tokenFrom = await page.$(DODO_FROM_TOKEN);
-  // const tokenTo = await page.$(DODO_TO_TOKEN);
-  // console.log(await tokenFrom.getProperty('innerHTML'));
-  // console.log(await tokenTo.getProperty('innerHTML'));
+async function getElementProperty(page, selector, elementCallback) {
+  let selectorReference = await page.$(selector);
+  return await page.evaluate(elementCallback, selectorReference);
+}
 
-  // await page.type(DODO_FROM_TOKEN, 5, {delay: 100});
+async function checkTokenPair(page) {
+  const tokenSource = "500G";
+  const tokenDestination = "500DC";
+
+  await page.waitForSelector(DODO_FROM_TOKEN_TEXT);
+  await page.waitForSelector(DODO_TO_TOKEN_TEXT);
+
+  // let currentTokenSource = await page.$(DODO_FROM_TOKEN_TEXT);
+  // let sourceTokenText = await page.evaluate(el => el.innerHTML, currentTokenSource);
+  let sourceTokenText = await getElementProperty(page, DODO_FROM_TOKEN_TEXT, el => el.innerHTML);
+
+  // let currentTokenDestination = await page.$(DODO_TO_TOKEN_TEXT);
+  // let destinationTokenText = await page.evaluate(el => el.innerHTML, currentTokenDestination);
+  let destinationTokenText = await getElementProperty(page, DODO_TO_TOKEN_TEXT, el => el.innerHTML);
+
+  return (
+    sourceTokenText == tokenSource &&
+    destinationTokenText == tokenDestination
+  );
+}
+
+async function prepareSwap(browser, page) {
+  const tokenInputValue = '1';
   console.log('Swapping token');
+
   // await page.waitForSelector(DODO_FROM_TOKEN);
-  await page.type(DODO_FROM_TOKEN, '1', {delay: 100});
-  await page.waitForXPath(DODO_PRE_SWAP_XPATH);
+  await page.type(DODO_FROM_TOKEN, tokenInputValue, {delay: 100});
+  // await page.waitForXPath(DODO_PRE_SWAP_XPATH);
   await page.waitForSelector(DODO_PRE_SWAP);
-  console.log('XPath Found');
+  // console.log('XPath Found');
 
   let btn = await page.$(DODO_PRE_SWAP);
-  // let btn = await page.$x(DODO_PRE_SWAP_XPATH);
+
   let confirmButtonInterval = setInterval(async () => {
     btn = await page.$(DODO_PRE_SWAP);
     let isDisabled = await page.evaluate(el => el.disabled, btn);
@@ -134,7 +159,6 @@ async function swapToken(browser, page) {
 async function confirmSwap(browser, page) {
   const popupConfirmPage = new Promise(x => browser.once('targetcreated', target => x(target.page())));
 
-  
   console.log('Pre swap Confirmation clicked');
   await page.click(DODO_PRE_SWAP);
 

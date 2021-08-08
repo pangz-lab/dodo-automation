@@ -1,6 +1,7 @@
 ## Setup
 
 1. install node and npm - setup for dev
+  - npm install -g typescript #for typescript
 2. install chrome
 3. install metamask in firefox extension; setup with the following setting
   - allow in private mode
@@ -22,3 +23,16 @@
 4. run script to setup metamask accounts and coins
 5. save the password to a file
 6. run the script
+
+
+
+const platform = new DodoExPlatform();
+const wallet = new MetamaskWallet();
+
+platform.setup(new DodoExSetting({
+  wallet: wallet,
+}));
+
+platform.login();
+platform.connectToWallet();
+platform.swap('500G','500DC');

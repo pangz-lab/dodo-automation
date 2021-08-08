@@ -1,0 +1,10 @@
+"use strict";
+exports.__esModule = true;
+var dodoex_platform_1 = require("./src/model/platform/dodoex/dodoex-platform");
+var dodoex_platform_setting_1 = require("./src/model/platform/dodoex/dodoex-platform-setting");
+var metamask_config_1 = require("./src/config/metamask-config");
+var metamask_wallet_1 = require("./src/model/wallet/metamask-wallet");
+var app_service_1 = require("./src/service/app-service");
+var platformSetting = new dodoex_platform_setting_1.DodoExPlatformSetting(new metamask_wallet_1.MetaMaskWallet(new metamask_config_1.MetaMaskConfig()));
+var platform = new dodoex_platform_1.DodoExPlatform(platformSetting, new app_service_1.AppService());
+console.log(platform.setup());
