@@ -11,7 +11,7 @@ export class DodoExPlatform
   implements BlockchainPlatformInterface {
 
   readonly _setting: DodoExPlatformSetting;
-  private _browser: Browser;
+  private _browser: any;
   private _appService: AppService;
 
   constructor(setting: DodoExPlatformSetting, appService: AppService) {
@@ -62,12 +62,12 @@ export class DodoExPlatform
       );
 
       const page = await metaMaskTab.page();
-      await page.bringToFront();
+      await page?.bringToFront();
 
       const loginSuccessful = this._login(page);
       if(!loginSuccessful) {await this._browser.close();}
     
-      await page.close();
+      await page?.close();
     });
 
     return true;
@@ -77,7 +77,7 @@ export class DodoExPlatform
   swapToken(sourceToken: String, destinationToken: String): boolean { return true;}
   rebalancePool(sourceToken: String, destinationToken: String): boolean { return true;}
 
-  private _login(page): boolean {
+  private _login(page: any): boolean {
 
     (async () => {
       const password = this._setting.wallet.userAccount().password;

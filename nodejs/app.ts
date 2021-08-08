@@ -16,4 +16,4 @@ const platform = new DodoExPlatform(
   new AppService()
 );
 
-console.log(platform.setup());
+platform.setup();
