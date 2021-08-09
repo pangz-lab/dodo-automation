@@ -1,0 +1,42 @@
+{
+  "login": {
+    "retry": 3
+  },
+  "browser": {
+    "extension": {
+      "wallet": {
+        "metamask": {
+          "appSetting": {
+            "version" : "9.8.4_0",
+            "folderName": "nkbihfbeogaeaoehlefnkodbefgpgknn",
+            "browserUrl": "chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#unlock",
+            "localPath": "%LocalAppData%/Google/Chrome/User Data/Default/Extensions",
+            "userProfileDataPath": "%LocalAppData%/Chromium/User Data/Profile 1"
+          },
+          "app": {
+            "chainTokenSymbol": "BNB",
+            "selector": {
+              "passwordField" : "#password",
+              "loginButton": "#app-content > div > div.main-container-wrapper > div > div > button > span",
+              "binanceTokenSymbol" : "#app-content > div > div.main-container-wrapper > div > div > div > div.home__balance-wrapper > div > div.wallet-overview__balance > div > div > div > div > div > span.currency-display-component__suffix"
+            }
+          }
+        }
+      }
+    },
+    "platform": {
+      "dodoex": {
+        
+      }
+    }
+  }, 
+  "token" : {
+    "collection": {
+      "500G": { "symbol": "500G" },
+      "500DC": { "symbol": "50DC" }
+    },
+    "pair": {
+      "500G:500DC": { "valueRatio": "1:55"}
+    }
+  }
+}
