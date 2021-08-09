@@ -1,4 +1,6 @@
 class AppConfig {
+  static LOGIN_RETRY = 3;
+
   static #extension = {
     version: '9.8.4_0',
     folder: 'nkbihfbeogaeaoehlefnkodbefgpgknn',

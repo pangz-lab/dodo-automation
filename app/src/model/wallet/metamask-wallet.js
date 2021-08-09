@@ -15,4 +15,9 @@ export class MetaMaskWallet extends WalletInterface {
   userAccount() {
     return this.#config.userAccount();
   }
+
+  isUnlocked(page) {
+    const _url = page.url();
+    return !(_url.slice(-4) == 'unlock');
+  }
 }

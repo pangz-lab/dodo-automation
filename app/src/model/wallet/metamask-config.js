@@ -1,6 +1,9 @@
 import { AppConfig } from "../../config/app-config.js";
 
 export class MetaMaskConfig {
+  chainTokenSymbol() {
+    return 'BNB';
+  }
 
   browserSetting() {
     return {
@@ -14,7 +17,8 @@ export class MetaMaskConfig {
       selector: {
         passwordField: '#password',
         loginButton: '#app-content > div > div.main-container-wrapper > div > div > button > span',
-      }
+        binanceTokenSymbol: '#app-content > div > div.main-container-wrapper > div > div > div > div.home__balance-wrapper > div > div.wallet-overview__balance > div > div > div > div > div > span.currency-display-component__suffix',
+      },
     };
   }
 
@@ -26,6 +30,7 @@ export class MetaMaskConfig {
   }
 
   _getPassword() {
-    return 'M@skuM3t@';
+    // return 'M@skuM3t@';
+    return 'M@skuM3t@fdfd';
   }
 }

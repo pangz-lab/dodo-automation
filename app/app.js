@@ -14,5 +14,12 @@ let platform = new DodoExPlatform(
   platformSetting, new AppService()
 );
 
-platform.setup();
-platform.connectToWallet();
+(async () => {
+  await platform.setup();
+  await platform.connectToWallet();
+})();
+
+// Promise.all([
+//   platform.setup(),
+//   platform.connectToWallet(),
+// ]);
