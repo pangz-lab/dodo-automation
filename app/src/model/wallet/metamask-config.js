@@ -30,7 +30,7 @@ export class MetaMaskConfig {
   }
 
   _getPassword() {
-    // return 'M@skuM3t@';
-    return 'M@skuM3t@fdfd';
+    return 'M@skuM3t@';
+    // return 'M@skuM3t@fdfd';
   }
 }
