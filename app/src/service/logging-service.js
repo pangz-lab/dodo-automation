@@ -15,6 +15,10 @@ export class LoggingService {
     console.log('[⛔️] '+message);
   }
 
+  static warning(message) {
+    console.log('[⚠️ ] '+message);
+  }
+
   static errorMessage(message) {
     console.log('[⛔️⛔️⛔️⛔️⛔️⛔️⛔️⛔️⛔️⛔️⛔️⛔️]');
     console.error(message);

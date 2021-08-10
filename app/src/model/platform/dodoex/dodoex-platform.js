@@ -15,6 +15,8 @@ export class DodoExPlatform
 
   constructor(setting) {
     LoggingService.starting('DodoExPlatform starting..');
+    
+    AppConfig.geConfigFile();
     super();
     const appService = new AppService();
     this.#setting = setting;
@@ -104,15 +106,18 @@ export class DodoExPlatform
       );
 
       await dodoPage.bringToFront();
-      let _correctPair = await this.#tokenSwap.checkTokenPair(
+      let _retryCount = 0;
+      const _allowedRetry = 2;
+
+      let _correctPair = await this.#tokenSwap
+      .checkTokenPair(
         dodoPage,
         sourceToken,
         targetToken
       );
-      let _retryCount = 0;
-      const _retryAllowed = 2;
 
-      while(!_correctPair && _retryCount <= _retryAllowed) {
+      while(!_correctPair && _retryCount <= _allowedRetry) {
+        LoggingService.warning("Incorrect token set, updating...");
         await this.#tokenSwap.setupTokenPair(
           dodoPage,
           sourceToken,
@@ -125,12 +130,13 @@ export class DodoExPlatform
           targetToken
         );
         _retryCount++;
-        if(_retryCount == 2 && !_correctPair) {
-          LoggingService.error("Token pair is unexpected");
-          LoggingService.error("Please check your wallet and DODO setting then try again.");
-          this._exit();
-          return await Promise.resolve(false);
-        }
+      }
+
+      if(!_correctPair) {
+        LoggingService.error("Token pair is unexpected");
+        LoggingService.error("Please check your wallet and DODO setting then try again.");
+        this._exit();
+        return await Promise.resolve(false);
       }
 
       LoggingService.success("Token pair confirmed...");

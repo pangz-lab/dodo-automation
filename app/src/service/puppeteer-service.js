@@ -22,4 +22,12 @@ export class PuppeteerService {
       el => el.disabled
     );
   }
+
+  async getInnerHTML(page, elementSelector) {
+    return await this.getElementProperty(
+      page,
+      elementSelector,
+      el => el.innerHTML
+    );
+  }
 }

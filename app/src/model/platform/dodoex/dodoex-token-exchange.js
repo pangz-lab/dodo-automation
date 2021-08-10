@@ -13,26 +13,85 @@ export class DodoExTokenExchange {
     this.#selectors = this.#setting.exchangeSelectors();
   }
 
+  async _selectTokenFromSearch(page, token) {
+    try {
+      
+      LoggingService.processing(`Searching for '${token}' token...`);
+      const _selectors = this.#selectors;
+      const _service = this.#puppeteerService;
+
+      LoggingService.processing('Inputting symbol...');
+      await page.type(_selectors.tokenSearch.searchField, token, {delay: 100});
+      await page.waitForTimeout(2000);
+
+      LoggingService.processing('Waiting for the result...');
+      await page.waitForSelector(
+        _selectors.tokenSearch.firstResultText,
+        {timeout: 10000}
+      );
+
+      const _firstResultTokenText = await _service.getInnerHTML(
+        page,
+        _selectors.tokenSearch.firstResultText
+      );
+
+      LoggingService.processing('Matching search result...');
+      if(_firstResultTokenText.trim() !== token.trim()) {
+        const _message = `Failed to find '${token}' token...`;
+        LoggingService.error(_message);
+        LoggingService.error("Please check your setting and try again");
+        throw new Error(_message);
+      }
+
+      LoggingService.processing('Checking if token can be selected..');
+      const _isTokenDisabled = await _service.isElementDisabled(
+        page,
+        _selectors.tokenSearch.firstResultText
+      );
+
+      await page.waitForTimeout(2000);
+      await page.click(((_isTokenDisabled) ?
+        _selectors.tokenSearch.exitSearchButton :
+        _selectors.tokenSearch.firstResultText
+      ));
+
+      return await Promise.resolve(true);
+
+    } catch (e) {
+      const _message = `Searching for ${token} token failed`
+      LoggingService.error(_message);
+      LoggingService.error("Please check your setting and try again");
+      LoggingService.errorMessage(e);
+      throw new Error(_message);
+    }
+  }
+
   async setupTokenPair(page, sourceToken, targetToken) {
     LoggingService.starting("Setting up token pair...");
     const _selectors = this.#selectors;
     const _service = this.#puppeteerService;
+    let _tokenText = "";
 
     LoggingService.processing("Waiting for tokens...");
     await page.waitForSelector(_selectors.sourceTokenSymbol);
     await page.waitForSelector(_selectors.targetTokenSymbol);
 
-    LoggingService.processing("Selecting the correct token...");
     LoggingService.processing("Selecting source token...");
-    await page.click(_selectors.sourceTokenSymbol);
-    await page.type(_selectors.tokenSearch.searchField, sourceToken, {delay: 100});
-    await page.click(_selectors.tokenSearch.firstResultText);
+    _tokenText = await _service.getInnerHTML(page, _selectors.sourceTokenSymbol);
+    if(_tokenText.trim() != sourceToken.trim()) {
+      await page.click(_selectors.sourceTokenSymbol);
+      await this._selectTokenFromSearch(page, sourceToken);
+    }
+    LoggingService.success("Source token found...");
     
     LoggingService.processing("Selecting target token...");
-    await page.click(_selectors.targetTokenSymbol);
-    await page.type(_selectors.tokenSearch.searchField, targetToken, {delay: 100});
-    await page.click(_selectors.tokenSearch.firstResultText);
+    _tokenText = await _service.getInnerHTML(page, _selectors.targetTokenSymbol);
+    if(_tokenText.trim() != targetToken.trim()) {
+      await page.click(_selectors.targetTokenSymbol);
+      await this._selectTokenFromSearch(page, targetToken);
+    }
     
+    LoggingService.success("Target token found...");
     LoggingService.success("Tokens are all set");
     return await Promise.resolve(true);
   }
@@ -47,15 +106,13 @@ export class DodoExTokenExchange {
     await page.waitForSelector(_selectors.targetTokenSymbol);
 
     LoggingService.processing("Evaluating token selection...")
-    const _sourceTokenText = await _service.getElementProperty(
+    const _sourceTokenText = await _service.getInnerHTML(
       page,
-      _selectors.sourceTokenSymbol,
-      el => el.innerHTML
+      _selectors.sourceTokenSymbol
     );
-    const _targetTokenText = await _service.getElementProperty(
+    const _targetTokenText = await _service.getInnerHTML(
       page,
-      _selectors.targetTokenSymbol,
-      el => el.innerHTML
+      _selectors.targetTokenSymbol
     );
 
     return await Promise.resolve(
@@ -76,14 +133,24 @@ export class DodoExTokenExchange {
     await page.waitForSelector(_preExchangeButton);
 
     let _isButtonDisabled = true;
-    while(_isButtonDisabled) {
-      LoggingService.processing("Waiting to allow confirmation...");
-      
+    let _retryCount = 1;
+    const _allowedRetry = 60;
+
+    while(_isButtonDisabled && _retryCount <= _allowedRetry) {
+      LoggingService.processing(`[ ${_retryCount} of ${_allowedRetry} ] Waiting to allow confirmation...`);
       await page.waitForTimeout(2000);
       _isButtonDisabled = await _service.isElementDisabled(
         page,
         _preExchangeButton
       );
+
+      _retryCount++;
+    }
+
+    if(_isButtonDisabled) {
+      const _message = "Token swap preparation failed...";
+      LoggingService.processing(_message);
+      throw new Error(_message);
     }
 
     LoggingService.processing("Token is ready for swapping...");
@@ -92,11 +159,9 @@ export class DodoExTokenExchange {
   
   async approve(browser, page) {
     try {
-      const _popupConfirmPage = new Promise(
-        x => browser.once(
-          'targetcreated', target => x(target.page())
-        )
-      );
+      const _popupConfirmPage = new Promise(x => browser.once(
+        'targetcreated', target => x(target.page())
+      ));
       const _selectors = this.#selectors;
       const _preExchangeButton = _selectors.button.preExchange;
       const _confirmExchangeButton = _selectors.button.confirmExchange;
