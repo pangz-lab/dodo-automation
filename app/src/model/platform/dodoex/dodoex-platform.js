@@ -93,32 +93,55 @@ export class DodoExPlatform
   }
 
   async swapToken(sourceToken, targetToken)  {
-    LoggingService.starting("Token swap starting...");
-    const dodoPage = await this.#browser.newPage();
-    await dodoPage.goto(
-      this.#setting.tokenExchangeURL(
+    try {
+      LoggingService.starting("Token swap starting...");
+      const dodoPage = await this.#browser.newPage();
+      await dodoPage.goto(
+        this.#setting.tokenExchangeURL(
+          sourceToken,
+          targetToken
+        )
+      );
+
+      await dodoPage.bringToFront();
+      let _correctPair = await this.#tokenSwap.checkTokenPair(
+        dodoPage,
         sourceToken,
         targetToken
-      )
-    );
+      );
+      let _retryCount = 0;
+      const _retryAllowed = 2;
 
-    await dodoPage.bringToFront();
-    const _correctPair = await this.#tokenSwap.checkPair(
-      dodoPage,
-      sourceToken,
-      targetToken
-    );
+      while(!_correctPair && _retryCount <= _retryAllowed) {
+        await this.#tokenSwap.setupTokenPair(
+          dodoPage,
+          sourceToken,
+          targetToken
+        );
 
-    if(!_correctPair) {
-      LoggingService.error("Token pair is unexpected");
-      LoggingService.error("Please check your wallet and DODO setting and try again.");
+        _correctPair = await this.#tokenSwap.checkTokenPair(
+          dodoPage,
+          sourceToken,
+          targetToken
+        );
+        _retryCount++;
+        if(_retryCount == 2 && !_correctPair) {
+          LoggingService.error("Token pair is unexpected");
+          LoggingService.error("Please check your wallet and DODO setting then try again.");
+          this._exit();
+          return await Promise.resolve(false);
+        }
+      }
+
+      LoggingService.success("Token pair confirmed...");
+      await this.#tokenSwap.prepare(dodoPage, 1);
+      await this.#tokenSwap.approve(this.#browser, dodoPage);
+
+    } catch(e) {
+      LoggingService.error("Error swapping tokens");
+      LoggingService.errorMessage(e);
       this._exit();
-      return await Promise.resolve(false);
     }
-
-    LoggingService.success("Token pair confirmed...");
-    await this.#tokenSwap.prepare(dodoPage, 1);
-    await this.#tokenSwap.approve(this.#browser, dodoPage);
   }
 
   rebalancePool(sourceToken, destinationToken)  { }

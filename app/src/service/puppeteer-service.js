@@ -12,6 +12,14 @@ export class PuppeteerService {
 
   async resetInput(page, element) {
     await page.waitForSelector(element);
-    await page.evaluate( () => document.execCommand( 'selectall', false, null ) );
+    return await page.evaluate( () => document.execCommand( 'selectall', false, null ) );
+  }
+
+  async isElementDisabled(page, elementSelector) {
+    return await this.getElementProperty(
+      page,
+      elementSelector,
+      el => el.disabled
+    );
   }
 }
