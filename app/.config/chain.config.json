@@ -1,0 +1,11 @@
+{
+  "token" : {
+    "collection": {
+      "500G": { "symbol": "500G" },
+      "500DC": { "symbol": "50DC" }
+    },
+    "pair": {
+      "500G:500DC": { "valueRatio": "1:55"}
+    }
+  }
+}

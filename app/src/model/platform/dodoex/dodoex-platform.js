@@ -15,8 +15,6 @@ export class DodoExPlatform
 
   constructor(setting) {
     LoggingService.starting('DodoExPlatform starting..');
-    
-    AppConfig.geConfigFile();
     super();
     const appService = new AppService();
     this.#setting = setting;
@@ -43,12 +41,12 @@ export class DodoExPlatform
 
   async setup() {
     try {
-
+      //TODO check app folder path
       LoggingService.success('Setting up...');
       this.#browser = await this
-          .#appService
-          .puppeteer
-          .launch(this.#browserLaunchSetting);
+        .#appService
+        .puppeteer
+        .launch(this.#browserLaunchSetting);
 
       LoggingService.success('Setup successful...');
       return await Promise.resolve(true);
@@ -64,34 +62,34 @@ export class DodoExPlatform
   }
 
   async connectToWallet() {
-      LoggingService.starting('Connecting to wallet...');
-      const metaMaskTab = await this.#puppeteerService.findTabWithUrl(
-          this.#browser,
-          this.#setting.wallet.browserSetting().extension.url
-      );
+    LoggingService.starting('Connecting to wallet...');
+    const metaMaskTab = await this.#puppeteerService.findTabWithUrl(
+      this.#browser,
+      this.#setting.wallet.browserSetting().extension.url
+    );
 
-      const page = await metaMaskTab.page();
-      await page.bringToFront();
+    const page = await metaMaskTab.page();
+    await page.bringToFront();
 
-      let _loginAttempt = 1;
-      let _loginSuccessful = false;
-      let retryCount = AppConfig.LOGIN_RETRY;
+    let _loginAttempt = 1;
+    let _loginSuccessful = false;
+    let retryCount = AppConfig.LOGIN_RETRY;
 
-      while(!_loginSuccessful && _loginAttempt <= retryCount) {
-          LoggingService.processing('[ '+_loginAttempt+' of '+retryCount+' ] Trying to login...');
-          _loginSuccessful = await this._login(page);
-          _loginAttempt++;
-      }
+    while(!_loginSuccessful && _loginAttempt <= retryCount) {
+      LoggingService.processing('[ '+_loginAttempt+' of '+retryCount+' ] Trying to login...');
+      _loginSuccessful = await this._login(page);
+      _loginAttempt++;
+    }
 
-      if(!_loginSuccessful) {
-          LoggingService.error('Wallet login failed...');
-          LoggingService.error('Closing connection...');
-          this._exit();
-      }
+    if(!_loginSuccessful) {
+      LoggingService.error('Wallet login failed...');
+      LoggingService.error('Closing connection...');
+      this._exit();
+    }
 
-      LoggingService.success('Wallet login successful...');
-      await page.close();
-      return await Promise.resolve(true);
+    LoggingService.success('Wallet conncted...');
+    await page.close();
+    return await Promise.resolve(true);
   }
 
   async swapToken(sourceToken, targetToken)  {

@@ -90,7 +90,7 @@ export class DodoExTokenExchange {
       await page.click(_selectors.targetTokenSymbol);
       await this._selectTokenFromSearch(page, targetToken);
     }
-    
+
     LoggingService.success("Target token found...");
     LoggingService.success("Tokens are all set");
     return await Promise.resolve(true);
@@ -165,7 +165,6 @@ export class DodoExTokenExchange {
       const _selectors = this.#selectors;
       const _preExchangeButton = _selectors.button.preExchange;
       const _confirmExchangeButton = _selectors.button.confirmExchange;
-      const _afterExchangeButton = _selectors.button.afterExchange;
 
       LoggingService.starting("Token approval starting...");
       await page.click(_preExchangeButton);
@@ -178,19 +177,55 @@ export class DodoExTokenExchange {
       await _confirmPage.click(_confirmExchangeButton);
 
       LoggingService.processing("Exchange approved...");
-      LoggingService.success("Approval successful...");
-      await page.waitForSelector(_afterExchangeButton);
-      await page.click(_afterExchangeButton);
-
-      LoggingService.closing("Exchange completed...");
-
-      return await Promise.resolve(true);
+      LoggingService.success("Confirming approval...");
+      
+      const _isExchangeApproved = await this._checkApproval(page);
+      LoggingService.closing(
+        (_isExchangeApproved)? 
+        "Exchange completed...":
+        "Exchange failed to complete..."
+      );
+      
+      return await Promise.resolve(_isExchangeApproved);
 
     } catch (e) {
       
       LoggingService.error("Token exchange approval error...");
       LoggingService.errorMessage(e);
       LoggingService.closing("Please check the input and setting then try again...");
+      return await Promise.resolve(false);
+    }
+  }
+
+  async _checkApproval(page) {
+    const _service = this.#puppeteerService;
+    const _selectors = this.#selectors;
+    const _success = _selectors.afterExchange.success;
+    const _error = _selectors.afterExchange.error;
+
+    const _afterExchangeButton = _success.dialogConfirmButton;
+    const _upperRightErrorMessage = _error.upperRightModalMessage;
+    const _errorConfirmButton = _error.dialogErrorConfirmButton;
+
+    try {
+      await page.waitForSelector(_afterExchangeButton);
+      await page.click(_afterExchangeButton);
+      return await Promise.resolve(true);
+
+    } catch (e) {
+      await page.waitForTimeout(2000);
+      await page.waitForSelector(_upperRightErrorMessage);
+      const _message = await _service.getInnerHTML(
+        page,
+        _upperRightErrorMessage
+      );
+
+      LoggingService.error("Exchange encountered an error");
+      LoggingService.errorMessage(_message);
+      LoggingService.errorMessage(e);
+
+      await page.waitForTimeout(2000);
+      await page.click(_errorConfirmButton);
       return await Promise.resolve(false);
     }
   }
