@@ -1,11 +1,12 @@
 {
   "token" : {
     "collection": {
-      "500G": { "symbol": "500G" },
-      "500DC": { "symbol": "50DC" }
+      "500G": { "symbol": "500G", "address": "0xae60930454458f5d04cae41a9d127e786e90f40a"},
+      "500DC": { "symbol": "50DC", "address": "0xf92aa7543e38684afec679ceffae02675dccbdfc"}
     },
     "pair": {
-      "500G:500DC": { "valueRatio": "1:55"}
+      "500G:500DC": { "valueRatio": [1,5], "source": "500G", "target": "500DC" },
+      "500DC:500G": { "valueRatio": [55,1], "source": "500DC", "target": "500G" }
     }
   }
 }

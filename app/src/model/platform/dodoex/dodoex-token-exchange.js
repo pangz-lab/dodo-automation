@@ -97,7 +97,7 @@ export class DodoExTokenExchange {
   }
 
   async checkTokenPair(page, sourceToken, targetToken) {
-    LoggingService.starting("Checking token pair...")
+    LoggingService.starting("Checking token pair setting...")
     const _selectors = this.#selectors;
     const _service = this.#puppeteerService;
 

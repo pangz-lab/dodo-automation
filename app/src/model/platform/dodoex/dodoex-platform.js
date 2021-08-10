@@ -3,6 +3,7 @@ import { DodoExTokenExchange } from "./dodoex-token-exchange.js";
 import { LoggingService } from "../../../service/logging-service.js";
 import { AppService } from  "../../../service/app-service.js";
 import { AppConfig } from "../../../config/app-config.js";
+import { ChainTokenPair } from "../../chain-token-pair.js";
 
 export class DodoExPlatform
     extends BlockchainPlatformInterface {
@@ -87,14 +88,28 @@ export class DodoExPlatform
       this._exit();
     }
 
-    LoggingService.success('Wallet conncted...');
+    LoggingService.success('Wallet connected...');
     await page.close();
     return await Promise.resolve(true);
   }
 
-  async swapToken(sourceToken, targetToken)  {
+  async swapToken(tokenPair)  {
+    const _pair = new ChainTokenPair(tokenPair);
+    const sourceToken = _pair.source;
+    const targetToken = _pair.target;
+
     try {
       LoggingService.starting("Token swap starting...");
+      LoggingService.processing("Checking token pair...");
+
+      if(!_pair.exist()) {
+        const _message = `Token pair '${tokenPair}' does not exist`;
+        LoggingService.error(_message);
+        LoggingService.error("Please check your configuration and try again");
+        throw new Error(_message);
+      }
+
+      LoggingService.processing("Token pair configuration found...");
       const dodoPage = await this.#browser.newPage();
       await dodoPage.goto(
         this.#setting.tokenExchangeURL(
@@ -138,7 +153,7 @@ export class DodoExPlatform
       }
 
       LoggingService.success("Token pair confirmed...");
-      await this.#tokenSwap.prepare(dodoPage, 1);
+      await this.#tokenSwap.prepare(dodoPage, _pair.sourceValue);
       await this.#tokenSwap.approve(this.#browser, dodoPage);
 
     } catch(e) {
