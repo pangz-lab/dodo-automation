@@ -14,12 +14,53 @@ export class MetaMaskWallet extends WalletInterface {
     this.#puppeteerService = this.#appService.puppeteerService;
   }
 
+  async login(page) {
+    const _password = this.userAccount().password;
+    const _selector = this.browserSetting().selector;
+    const _passwordField = _selector.passwordField;
+
+    await this.#puppeteerService.resetInput(page, _passwordField);
+    await page.type(_passwordField, _password, {delay: 100});
+    await page.click(_selector.loginButton , {delay: 3000});
+
+    const loginStatus = await this._confirmLogin(
+      page,
+      _selector.binanceTokenSymbol
+    );
+
+    return await Promise.resolve(loginStatus);
+  }
+  
+  userAccount() {
+    return this.#setting.userAccount();
+  }
+  
   browserSetting() {
     return this.#setting.browserSetting();
   }
 
-  userAccount() {
-    return this.#setting.userAccount();
+  async _confirmLogin(page, tokenSymbolSelector) {
+    try {
+      LoggingService.processing("Confirming network account...");
+      await page.waitForSelector(
+        tokenSymbolSelector, {
+        timeout: 8000
+      });
+
+      const _isNetworkSet = await this._isNetworkSet(page, tokenSymbolSelector);
+      return await Promise.resolve(
+        this._isUnlocked(page) && 
+        _isNetworkSet
+      );
+
+    } catch (e) {
+
+      LoggingService.error('Wallet confirmation failed');
+      LoggingService.error('Account not accepted');
+      LoggingService.error('Please recheck the wallet configuration and try again');
+      LoggingService.errorMessage(e);
+      return await Promise.resolve(false);
+    }
   }
 
   _isUnlocked(page) {
@@ -48,46 +89,5 @@ export class MetaMaskWallet extends WalletInterface {
     }
 
     return await Promise.resolve(true);
-  }
-
-  async login(page) {
-    const _password = this.userAccount().password;
-    const _selector = this.browserSetting().selector;
-    const _passwordField = _selector.passwordField;
-
-    await this.#puppeteerService.resetInput(page, _passwordField);
-    await page.type(_passwordField, _password, {delay: 100});
-    await page.click(_selector.loginButton , {delay: 3000});
-
-    const loginStatus = await this._confirmLogin(
-      page,
-      _selector.binanceTokenSymbol
-    );
-
-    return await Promise.resolve(loginStatus);
-  }
-
-  async _confirmLogin(page, tokenSymbolSelector) {
-    try {
-      LoggingService.processing("Confirming network account...");
-      await page.waitForSelector(
-        tokenSymbolSelector, {
-        timeout: 8000
-      });
-
-      const _isNetworkSet = await this._isNetworkSet(page, tokenSymbolSelector);
-      return await Promise.resolve(
-        this._isUnlocked(page) && 
-        _isNetworkSet
-      );
-
-    } catch (e) {
-
-      LoggingService.error('Wallet confirmation failed');
-      LoggingService.error('Account not accepted');
-      LoggingService.error('Please recheck the wallet configuration and try again');
-      LoggingService.errorMessage(e);
-      return await Promise.resolve(false);
-    }
   }
 }

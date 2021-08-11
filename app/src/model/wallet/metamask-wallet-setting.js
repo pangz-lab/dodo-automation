@@ -16,11 +16,6 @@ export class MetaMaskWalletSetting {
   }
 
   browserSetting() {
-    // return {
-    //   browserExtensionUrl: _walletAppSetting.browserUrl,
-    //   browserExtension: _walletAppSetting.localPath,
-    //   userProfileData: _walletAppSetting.userProfileDataPath,
-    // };\
     const _app = this.#config.app;
     const _appSetting = this.#config.appSetting;
     return {
