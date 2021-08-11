@@ -27,7 +27,7 @@ export class DodoExTokenExchange {
       LoggingService.processing('Waiting for the result...');
       await page.waitForSelector(
         _selectors.tokenSearch.firstResultText,
-        {timeout: 10000}
+        { timeout: 10000 }
       );
 
       const _firstResultTokenText = await _service.getInnerHTML(
@@ -148,12 +148,12 @@ export class DodoExTokenExchange {
     }
 
     if(_isButtonDisabled) {
-      const _message = "Token swap preparation failed...";
+      const _message = "Token exchange preparation failed...";
       LoggingService.processing(_message);
       throw new Error(_message);
     }
 
-    LoggingService.processing("Token is ready for swapping...");
+    LoggingService.processing("Token is ready for exchange...");
     return await Promise.resolve(true);
   }
   
@@ -177,20 +177,20 @@ export class DodoExTokenExchange {
       await _confirmPage.click(_confirmExchangeButton);
 
       LoggingService.processing("Exchange approved...");
-      LoggingService.success("Confirming approval...");
+      LoggingService.processing("Confirming approval...");
       
       const _isExchangeApproved = await this._checkApproval(page);
       LoggingService.closing(
         (_isExchangeApproved)? 
-        "Exchange completed...":
-        "Exchange failed to complete..."
+        "Exchange completed":
+        "Failed to process the exchange"
       );
       
       return await Promise.resolve(_isExchangeApproved);
 
     } catch (e) {
       
-      LoggingService.error("Token exchange approval error...");
+      LoggingService.error("Token exchange approval error");
       LoggingService.errorMessage(e);
       LoggingService.closing("Please check the input and setting then try again...");
       return await Promise.resolve(false);
@@ -220,7 +220,7 @@ export class DodoExTokenExchange {
         _upperRightErrorMessage
       );
 
-      LoggingService.error("Exchange encountered an error");
+      LoggingService.error("Token exchange encountered an error");
       LoggingService.errorMessage(_message);
       LoggingService.errorMessage(e);
 

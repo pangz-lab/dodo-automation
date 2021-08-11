@@ -113,8 +113,8 @@ export class DodoExPlatform
       const dodoPage = await this.#browser.newPage();
       await dodoPage.goto(
         this.#setting.tokenExchangeURL(
-          sourceToken,
-          targetToken
+          sourceToken.name,
+          targetToken.name
         )
       );
 
@@ -125,22 +125,22 @@ export class DodoExPlatform
       let _correctPair = await this.#tokenSwap
       .checkTokenPair(
         dodoPage,
-        sourceToken,
-        targetToken
+        sourceToken.name,
+        targetToken.name
       );
 
       while(!_correctPair && _retryCount <= _allowedRetry) {
         LoggingService.warning("Incorrect token set, updating...");
         await this.#tokenSwap.setupTokenPair(
           dodoPage,
-          sourceToken,
-          targetToken
+          sourceToken.name,
+          targetToken.name
         );
 
         _correctPair = await this.#tokenSwap.checkTokenPair(
           dodoPage,
-          sourceToken,
-          targetToken
+          sourceToken.name,
+          targetToken.name
         );
         _retryCount++;
       }
@@ -153,7 +153,7 @@ export class DodoExPlatform
       }
 
       LoggingService.success("Token pair confirmed...");
-      await this.#tokenSwap.prepare(dodoPage, _pair.sourceValue);
+      await this.#tokenSwap.prepare(dodoPage, sourceToken.value);
       await this.#tokenSwap.approve(this.#browser, dodoPage);
 
     } catch(e) {
