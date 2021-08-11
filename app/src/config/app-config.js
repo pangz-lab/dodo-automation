@@ -7,8 +7,8 @@ export class AppConfig {
 
   static #appConfig = AppConfig._getConfig("app");
   static #chainConfig = AppConfig._getConfig("chain");
-  static #browserExtension = AppConfig.#appConfig.browser.extension;
-  static #walletSetting = AppConfig.#browserExtension.wallet.metamask;
+  // static #browserExtension = AppConfig.#appConfig.browser.extension;
+  // static #walletSetting = AppConfig.#browserExtension.wallet.metamask;
   static #platformSetting = AppConfig.#appConfig.platform;
   // static #extension = {
   //   version: '9.8.4_0',
@@ -20,15 +20,15 @@ export class AppConfig {
   //   profileData: this.#appDataPath+'/Chromium/User Data/Profile 1',
   // };
 
-  static env() {
-    const _walletAppSetting = AppConfig.#walletSetting.appSetting;
+  // static env() {
+  //   const _walletAppSetting = AppConfig.#walletSetting.appSetting;
 
-    return {
-      browserExtensionUrl: _walletAppSetting.browserUrl,
-      browserExtension: _walletAppSetting.localPath,
-      userProfileData: _walletAppSetting.userProfileDataPath,
-    };
-  }
+  //   return {
+  //     browserExtensionUrl: _walletAppSetting.browserUrl,
+  //     browserExtension: _walletAppSetting.localPath,
+  //     userProfileData: _walletAppSetting.userProfileDataPath,
+  //   };
+  // }
 
   static _getConfig(config) {
     if(AppConfig._configFileData[config] == undefined) {
@@ -36,6 +36,10 @@ export class AppConfig {
       AppConfig._configFileData[config] = JSON.parse(_data);
     }
     return AppConfig._configFileData[config];
+  }
+
+  static app() {
+    return AppConfig.#appConfig;
   }
 
   static platform() {

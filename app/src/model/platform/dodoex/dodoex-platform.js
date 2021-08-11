@@ -1,30 +1,31 @@
 import { BlockchainPlatformInterface } from "../../../../lib/model/blockchain-platform-interface.js";
 import { DodoExTokenExchange } from "./dodoex-token-exchange.js";
-import { LoggingService } from "../../../service/logging-service.js";
 import { AppService } from  "../../../service/app-service.js";
+import { LoggingService } from "../../../service/logging-service.js"
 import { AppConfig } from "../../../config/app-config.js";
 import { ChainTokenPair } from "../../chain-token-pair.js";
 
-export class DodoExPlatform
-    extends BlockchainPlatformInterface {
+export class DodoExPlatform 
+  extends BlockchainPlatformInterface {
   #setting;
   #browser;
-  #browserLaunchSetting;
   #appService;
+  #browserLaunchSetting;
   #puppeteerService;
   #tokenSwap;
+  #wallet;
 
   constructor(setting) {
     LoggingService.starting('DodoExPlatform starting..');
     super();
-    const appService = new AppService();
     this.#setting = setting;
-    this.#appService = appService;
-    this.#puppeteerService = appService.puppeteerService;
+    this.#wallet = this.#setting.wallet;
+    this.#appService = new AppService();
     this.#tokenSwap = new DodoExTokenExchange(
       this.#setting,
       this.#appService
     );
+    this.#puppeteerService = this.#appService.puppeteerService;
 
     const _walletBrowserSetting = this.#setting.wallet.browserSetting();
     const _extensionPath = _walletBrowserSetting.extension.path;
@@ -66,7 +67,10 @@ export class DodoExPlatform
     LoggingService.starting('Connecting to wallet...');
     const metaMaskTab = await this.#puppeteerService.findTabWithUrl(
       this.#browser,
-      this.#setting.wallet.browserSetting().extension.url
+      this.#wallet
+        .browserSetting()
+        .extension
+        .url
     );
 
     const page = await metaMaskTab.page();
@@ -78,7 +82,7 @@ export class DodoExPlatform
 
     while(!_loginSuccessful && _loginAttempt <= retryCount) {
       LoggingService.processing('[ '+_loginAttempt+' of '+retryCount+' ] Trying to login...');
-      _loginSuccessful = await this._login(page);
+      _loginSuccessful = await this.#wallet.login(page);
       _loginAttempt++;
     }
 
@@ -165,63 +169,8 @@ export class DodoExPlatform
 
   rebalancePool(sourceToken, destinationToken)  { }
 
-
-  async _login(page) {
-    const _password = this.#setting.wallet.userAccount().password;
-    const _selector = this.#setting.wallet.browserSetting().selector;
-    const _passwordField = _selector.passwordField;
-
-    await this._puppeteerService().resetInput(page, _passwordField);
-    await page.type(_passwordField, _password, {delay: 100});
-    await page.click(_selector.loginButton , {delay: 3000});
-
-    const loginStatus = await this._confirmLogin(
-      page,
-      _selector.binanceTokenSymbol,
-      this.#setting.wallet.mainTokenSymbol
-    );
-
-    return await Promise.resolve(loginStatus);
-  }
-
-  async _confirmLogin(page, tokenSymbolSelector, mainTokenSymbol) {
-    try {
-      await page.waitForSelector(
-        tokenSymbolSelector, {
-        timeout: 8000
-      });
-
-      if(this.#setting.wallet.isUnlocked(page)) {
-        return await Promise.resolve(true);
-      }
-
-      const activeWalletTokenSymbol = await this
-        ._puppeteerService()
-        .getElementProperty(
-          page,
-          tokenSymbolSelector,
-          element => element.innerHTML
-        );
-
-      const mainTokenSymbolExist = (
-        activeWalletTokenSymbol.trim() === mainTokenSymbol.trim()
-      );
-
-      return await Promise.resolve(mainTokenSymbolExist);
-
-    } catch (e) {
-
-      LoggingService.processing('Account not accepted...');
-      return await Promise.resolve(false);
-    }
-  }
-
   async _exit() {
     LoggingService.closing('DodoExPlatform closing..');
     await this.#browser.close();
-  }
-
-  _puppeteerService() {
-    return this.#puppeteerService;
   }
 }
