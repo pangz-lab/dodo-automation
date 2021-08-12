@@ -1,1 +1,1 @@
-nexe --build app.js -r src/**/*.js
+pkg . --no-bytecode --public-packages * --public --experimental-modules

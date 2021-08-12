@@ -15,5 +15,7 @@ let platform = new DodoExPlatform(platformSetting);
   await platform.setup();
   await platform.connectToWallet();
   // await platform.swapToken("500G:500DC");
-  await platform.swapToken("500DC:500G");
+  // await platform.swapToken("500DC:500G");
+  // await platform.swapTokenUntil("500G:500DC", 5);
+  await platform.swapTokenUntil("500DC:500G", 5);
 })();
