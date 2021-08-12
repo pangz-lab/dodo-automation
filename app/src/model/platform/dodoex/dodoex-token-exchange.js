@@ -13,59 +13,6 @@ export class DodoExTokenExchange {
     this.#selectors = this.#setting.exchangeSelectors();
   }
 
-  async _selectTokenFromSearch(page, token) {
-    try {
-      
-      LoggingService.processing(`Searching for '${token}' token...`);
-      const _selectors = this.#selectors;
-      const _service = this.#puppeteerService;
-
-      LoggingService.processing('Inputting symbol...');
-      await page.type(_selectors.tokenSearch.searchField, token, {delay: 100});
-      await page.waitForTimeout(2000);
-
-      LoggingService.processing('Waiting for the result...');
-      await page.waitForSelector(
-        _selectors.tokenSearch.firstResultText,
-        { timeout: 10000 }
-      );
-
-      const _firstResultTokenText = await _service.getInnerHTML(
-        page,
-        _selectors.tokenSearch.firstResultText
-      );
-
-      LoggingService.processing('Matching search result...');
-      if(_firstResultTokenText.trim() !== token.trim()) {
-        const _message = `Failed to find '${token}' token...`;
-        LoggingService.error(_message);
-        LoggingService.error("Please check your setting and try again");
-        throw new Error(_message);
-      }
-
-      LoggingService.processing('Checking if token can be selected..');
-      const _isTokenDisabled = await _service.isElementDisabled(
-        page,
-        _selectors.tokenSearch.firstResultText
-      );
-
-      await page.waitForTimeout(2000);
-      await page.click(((_isTokenDisabled) ?
-        _selectors.tokenSearch.exitSearchButton :
-        _selectors.tokenSearch.firstResultText
-      ));
-
-      return await Promise.resolve(true);
-
-    } catch (e) {
-      const _message = `Searching for ${token} token failed`
-      LoggingService.error(_message);
-      LoggingService.error("Please check your setting and try again");
-      LoggingService.errorMessage(e);
-      throw new Error(_message);
-    }
-  }
-
   async setupTokenPair(page, sourceToken, targetToken) {
     LoggingService.starting("Setting up token pair...");
     const _selectors = this.#selectors;
@@ -129,6 +76,7 @@ export class DodoExTokenExchange {
     const _preExchangeButton = _selectors.button.preExchange;
 
     LoggingService.processing("Settting token value...");
+    await _service.resetInput(page, _selectors.input.sourceToken);
     await page.type(_selectors.input.sourceToken, _tokenValue, {delay: 100});
     await page.waitForSelector(_preExchangeButton);
 
@@ -227,6 +175,60 @@ export class DodoExTokenExchange {
       await page.waitForTimeout(2000);
       await page.click(_errorConfirmButton);
       return await Promise.resolve(false);
+    }
+  }
+
+  async _selectTokenFromSearch(page, token) {
+    try {
+      
+      LoggingService.processing(`Searching for '${token}' token...`);
+      const _selectors = this.#selectors;
+      const _service = this.#puppeteerService;
+
+      LoggingService.processing('Inputting symbol...');
+      await page.type(_selectors.tokenSearch.searchField, token, {delay: 100});
+      await page.waitForTimeout(2000);
+
+      LoggingService.processing('Waiting for the result...');
+      await page.waitForSelector(
+        _selectors.tokenSearch.firstResultText,
+        { timeout: 10000 }
+      );
+      //TODO Add token address manually when error occurred
+      const _firstResultTokenText = await _service.getInnerHTML(
+        page,
+        _selectors.tokenSearch.firstResultText
+      );
+
+      LoggingService.processing('Matching search result...');
+      if(_firstResultTokenText.trim() !== token.trim()) {
+        const _message = `Failed to find '${token}' token...`;
+        LoggingService.error(_message);
+        LoggingService.error("Please check your setting and try again");
+        throw new Error(_message);
+      }
+
+      LoggingService.processing('Checking if token can be selected...');
+      const _isTokenDisabled = await _service.isElementDisabled(
+        page,
+        _selectors.tokenSearch.firstResultText
+      );
+
+      await page.waitForTimeout(2000);
+      await page.click(((_isTokenDisabled) ?
+        _selectors.tokenSearch.exitSearchButton :
+        _selectors.tokenSearch.firstResultText
+      ));
+
+      return await Promise.resolve(true);
+
+    } catch (e) {
+
+      const _message = `Searching for ${token} token failed`
+      LoggingService.error(_message);
+      LoggingService.error("Please check your setting and try again");
+      LoggingService.errorMessage(e);
+      throw new Error(_message);
     }
   }
 }
