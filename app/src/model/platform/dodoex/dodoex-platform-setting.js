@@ -19,7 +19,7 @@ export class DodoExPlatformSetting extends PlatformSettingInterface {
 
   exchangeSelectors() {
     return this.platformSetting
-    .selectors
-    .exchange;
+    .exchange
+    .selectors;
   }
 }

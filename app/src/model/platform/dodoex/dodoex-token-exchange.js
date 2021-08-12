@@ -73,12 +73,12 @@ export class DodoExTokenExchange {
     const _tokenValue = sourceTokenValue.toString();
     const _service = this.#puppeteerService;
     const _selectors = this.#selectors;
-    const _preExchangeButton = _selectors.button.preExchange;
+    const _preConfirmExchangeButton = _selectors.button.preConfirmExchange;
 
     LoggingService.processing("Settting token value...");
     await _service.resetInput(page, _selectors.input.sourceToken);
     await page.type(_selectors.input.sourceToken, _tokenValue, {delay: 100});
-    await page.waitForSelector(_preExchangeButton);
+    await page.waitForSelector(_preConfirmExchangeButton);
 
     let _isButtonDisabled = true;
     let _retryCount = 1;
@@ -89,7 +89,7 @@ export class DodoExTokenExchange {
       await page.waitForTimeout(2000);
       _isButtonDisabled = await _service.isElementDisabled(
         page,
-        _preExchangeButton
+        _preConfirmExchangeButton
       );
 
       _retryCount++;
@@ -107,22 +107,37 @@ export class DodoExTokenExchange {
   
   async approve(browser, page) {
     try {
+      
       const _popupConfirmPage = new Promise(x => browser.once(
         'targetcreated', target => x(target.page())
-      ));
+        ));
+      const _service = this.#puppeteerService;
       const _selectors = this.#selectors;
-      const _preExchangeButton = _selectors.button.preExchange;
-      const _confirmExchangeButton = _selectors.button.confirmExchange;
+      const _preConfirmExchangeButton = _selectors.button.preConfirmExchange;
+      const _exchangeConfirmButton = _selectors.button.confirmExchange;
+      const _exchangeRejectButton = _selectors.button.rejectExchange;
 
       LoggingService.starting("Token approval starting...");
-      await page.click(_preExchangeButton);
+      await page.click(_preConfirmExchangeButton);
 
       LoggingService.processing("Confirming amount...");
       const _confirmPage = await _popupConfirmPage;
-      await _confirmPage.waitForSelector(_confirmExchangeButton);
+      await _confirmPage.waitForSelector(_exchangeConfirmButton);
+      const _isApproveButtonDisabled = await _service.isElementDisabled(
+        _confirmPage,
+        _exchangeConfirmButton
+      );
+
+      if(_isApproveButtonDisabled) {
+        const _message = "Exchange approval failed...";
+        LoggingService.error(_message);
+        LoggingService.error("Please check your balance and try again");
+        await _confirmPage.click(_exchangeRejectButton);
+        throw new Error(_message);
+      }
 
       LoggingService.processing("Processing exchange...");
-      await _confirmPage.click(_confirmExchangeButton);
+      await _confirmPage.click(_exchangeApproveButton);
 
       LoggingService.processing("Exchange approved...");
       LoggingService.processing("Confirming approval...");
