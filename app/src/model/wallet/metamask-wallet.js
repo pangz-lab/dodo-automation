@@ -23,10 +23,7 @@ export class MetaMaskWallet extends WalletInterface {
     await page.type(_passwordField, _password, {delay: 100});
     await page.click(_selector.loginButton , {delay: 3000});
 
-    const loginStatus = await this._confirmLogin(
-      page,
-      _selector.binanceTokenSymbol
-    );
+    const loginStatus = await this._confirmLogin(page);
 
     return await Promise.resolve(loginStatus);
   }
@@ -39,15 +36,23 @@ export class MetaMaskWallet extends WalletInterface {
     return this.#setting.browserSetting();
   }
 
-  async _confirmLogin(page, tokenSymbolSelector) {
+  async _confirmLogin(page) {
     try {
+      
       LoggingService.processing("Confirming network account...");
+      const _tokenSymbolSelector = this.browserSetting()
+      .selector
+      .binanceTokenSymbol;
       await page.waitForSelector(
-        tokenSymbolSelector, {
+        _tokenSymbolSelector, {
         timeout: 8000
       });
 
-      const _isNetworkSet = await this._isNetworkSet(page, tokenSymbolSelector);
+      const _isNetworkSet = await this._isNetworkSet(
+        page,
+        _tokenSymbolSelector
+      );
+
       return await Promise.resolve(
         this._isUnlocked(page) && 
         _isNetworkSet
@@ -69,6 +74,7 @@ export class MetaMaskWallet extends WalletInterface {
   }
 
   async _isNetworkSet(page, tokenSymbolSelector) {
+
     const _mainTokenSymbol = this.#setting.chainTokenSymbol();
     const _activeWalletTokenSymbol = await this
     .#puppeteerService
