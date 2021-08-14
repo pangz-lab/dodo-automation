@@ -1,4 +1,7 @@
 {
+  "pool" : {
+    "500G:500DC": "0xc88b273e93b0da6a27340708c3575700b5e8c615"
+  },
   "token" : {
     "collection": {
       "500G": { "symbol": "500G", "address": "0xae60930454458f5d04cae41a9d127e786e90f40a"},

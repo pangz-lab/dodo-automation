@@ -6,6 +6,7 @@ export class DodoExPlatformSetting extends PlatformSettingInterface {
   #setting;
   #url;
   #exchangeUrl;
+  #poolManagementUrl;
   #tokenNetwork;
   #endpoints;
   
@@ -16,6 +17,7 @@ export class DodoExPlatformSetting extends PlatformSettingInterface {
     this.#url = this.#setting.webUrl;
     this.#endpoints = this.#setting.endpoints;
     this.#exchangeUrl = this.#url+'/'+this.#endpoints.exchange;
+    this.#poolManagementUrl = this.#url+'/'+this.#endpoints.poolList+"/";
     this.#tokenNetwork = this.#setting.network;
   }
 
@@ -24,9 +26,20 @@ export class DodoExPlatformSetting extends PlatformSettingInterface {
     return this.#exchangeUrl+_urlSuffix;
   }
 
+  poolRebalanceURL(poolAddress) {
+    const _urlSuffix = poolAddress+"?network="+this.#tokenNetwork;
+    return this.#poolManagementUrl+_urlSuffix;
+  }
+
   exchangeSelectors() {
     return this.#setting
     .exchange
+    .selectors;
+  }
+
+  poolListSelectors() {
+    return this.#setting
+    .pool
     .selectors;
   }
 }

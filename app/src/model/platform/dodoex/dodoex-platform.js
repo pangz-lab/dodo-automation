@@ -1,5 +1,6 @@
 import { BlockchainPlatformInterface } from "../../../../lib/model/blockchain-platform-interface.js";
 import { DodoExTokenExchange } from "./dodoex-token-exchange.js";
+import { DodoExPoolRebalance } from "./dodoex-pool-rebalance.js";
 import { AppConfig } from "../../../config/app-config.js";
 import { AppService } from  "../../../service/app-service.js";
 import { LoggingService } from "../../../service/logging-service.js"
@@ -13,6 +14,7 @@ export class DodoExPlatform
   #browserLaunchSetting;
   #pptrService;
   #tokenExchange;
+  #poolRebalance;
   #wallet;
 
   constructor(setting) {
@@ -22,6 +24,10 @@ export class DodoExPlatform
     this.#wallet = this.#setting.wallet;
     this.#appService = new AppService();
     this.#tokenExchange = new DodoExTokenExchange(
+      this.#setting,
+      this.#appService
+    );
+    this.#poolRebalance = new DodoExPoolRebalance(
       this.#setting,
       this.#appService
     );
@@ -259,7 +265,33 @@ export class DodoExPlatform
     return await Promise.resolve(true);
   }
 
-  rebalancePool(sourceToken, destinationToken)  { }
+  async rebalancePool(pool) {
+    LoggingService.starting("Pool rebalance starting...");
+    const dodoPage = await this._preparePoolRebalance(pool);
+    await this.#poolRebalance._executeRebalance(dodoPage);
+  }
+
+  async _preparePoolRebalance(pool) {
+
+    // LoggingService.starting("Token swap starting...");
+    // LoggingService.processing("Checking token pair...");
+
+    // if(!pair.exist()) {
+    //   const _message = `Token pair '${pair.name}' does not exist`;
+    //   LoggingService.error(_message);
+    //   LoggingService.error("Please check your configuration and try again");
+    //   throw new Error(_message);
+    // }
+
+    // LoggingService.processing("Token pair configuration found...");
+    const dodoPage = await this.#browser.newPage();
+    await dodoPage.goto(
+      this.#setting.poolRebalanceURL(pool)
+    );
+    await dodoPage.bringToFront();
+    return dodoPage;
+  }
+
 
   async _exit() {
     LoggingService.closing('DodoExPlatform closing..');

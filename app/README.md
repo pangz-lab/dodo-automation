@@ -25,14 +25,8 @@
 6. run the script
 
 
-
-const platform = new DodoExPlatform();
-const wallet = new MetamaskWallet();
-
-platform.setup(new DodoExSetting({
-  wallet: wallet,
-}));
-
-platform.login();
-platform.connectToWallet();
-platform.swap('500G','500DC');
+- rebalance
+- password config
+- runner script
+- build
+- relocate config for retry, sleep et. al
