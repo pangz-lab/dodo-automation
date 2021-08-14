@@ -11,7 +11,7 @@ export class DodoExPlatform
   #browser;
   #appService;
   #browserLaunchSetting;
-  #puppeteerService;
+  #pptrService;
   #tokenExchange;
   #wallet;
 
@@ -25,7 +25,7 @@ export class DodoExPlatform
       this.#setting,
       this.#appService
     );
-    this.#puppeteerService = this.#appService.puppeteerService;
+    this.#pptrService = this.#appService.puppeteerService;
 
     const _walletBrowserSetting = this.#setting.wallet.browserSetting();
     const _extensionPath = _walletBrowserSetting.extension.path;
@@ -68,7 +68,7 @@ export class DodoExPlatform
     try {
 
       LoggingService.starting('Connecting to wallet...');
-      const metaMaskTab = await this.#puppeteerService.findTabWithUrl(
+      const metaMaskTab = await this.#pptrService.findTabWithUrl(
         this.#browser,
         this.#wallet
           .browserSetting()

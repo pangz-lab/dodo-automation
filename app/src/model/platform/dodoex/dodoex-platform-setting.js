@@ -3,22 +3,29 @@ import { AppConfig } from "../../../config/app-config.js";
 
 export class DodoExPlatformSetting extends PlatformSettingInterface {
   wallet;
-  platformSetting;
+  #setting;
+  #url;
+  #exchangeUrl;
+  #tokenNetwork;
+  #endpoints;
   
   constructor(wallet) {
     super();
     this.wallet = wallet;
-    this.platformSetting = AppConfig.platform().dodoex;
+    this.#setting = AppConfig.platform().dodoex;
+    this.#url = this.#setting.webUrl;
+    this.#endpoints = this.#setting.endpoints;
+    this.#exchangeUrl = this.#url+'/'+this.#endpoints.exchange;
+    this.#tokenNetwork = this.#setting.network;
   }
 
   tokenExchangeURL(sourceToken, targetToken) {
-    const urlSuffix = sourceToken+'-'+targetToken+'?network=bsc-mainnet';
-    return this.platformSetting
-      .webExchangeUrl+urlSuffix;
+    const _urlSuffix = sourceToken+'-'+targetToken+"?network="+this.#tokenNetwork;
+    return this.#exchangeUrl+_urlSuffix;
   }
 
   exchangeSelectors() {
-    return this.platformSetting
+    return this.#setting
     .exchange
     .selectors;
   }
