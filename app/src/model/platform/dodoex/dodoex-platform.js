@@ -5,6 +5,7 @@ import { AppConfig } from "../../../config/app-config.js";
 import { AppService } from  "../../../service/app-service.js";
 import { LoggingService } from "../../../service/logging-service.js"
 import { ChainTokenPair } from "../../chain-token-pair.js";
+import { ChainToken } from "../../chain-token.js";
 
 export class DodoExPlatform 
   extends BlockchainPlatformInterface {
@@ -112,8 +113,38 @@ export class DodoExPlatform
     }
   }
 
-  async swapTokenTest(tokenPair) {
-    const _pair = new ChainTokenPair(tokenPair);
+  async _getTokenPair(tokenPairKey) {
+    try {
+      const _token = AppConfig.chain().token;
+      const _collection = _token.collection;
+      const _pair = _token.pair[tokenPairKey];
+      const _sourceToken = _collection[_pair.source];
+      const _targetToken = _collection[_pair.target];
+
+      return new ChainTokenPair({
+        name: tokenPairKey,
+        source: new ChainToken({
+          name: _pair.source,
+          value: _pair.valueRatio[0],
+          symbol: _sourceToken.symbol,
+          address: _sourceToken.address,
+        }),
+        target: new ChainToken({
+          name: _pair.target,
+          value: _pair.valueRatio[1],
+          symbol: _targetToken.symbol,
+          address: _targetToken.address,
+        })
+      });
+
+    } catch (e) {
+      LoggingService.error("Configuration error. Please check the setting and try again");
+      throw new Error("Token pair does not found!");
+    }
+  }
+
+  async swapTokenTest(tokenPairKey) {
+    const _pair = await this._getTokenPair(tokenPairKey);
     const _sourceToken = _pair.source;
     const _targetToken = _pair.target;
     const _dodoPage = await this._prepareExchange(_pair, _sourceToken, _targetToken);
@@ -121,7 +152,7 @@ export class DodoExPlatform
 
   async swapToken(tokenPair)  {
     try{
-      const _pair = new ChainTokenPair(tokenPair);
+      const _pair = await this._getTokenPair(tokenPairKey);
       const _sourceToken = _pair.source;
       const _targetToken = _pair.target;
       const _dodoPage = await this._prepareExchange(_pair, _sourceToken, _targetToken);
@@ -138,9 +169,9 @@ export class DodoExPlatform
     }
   }
 
-  async swapTokenInfinite(tokenPair)  {
+  async swapTokenInfinite(tokenPairKey)  {
     try{
-      const _pair = new ChainTokenPair(tokenPair);
+      const _pair = await this._getTokenPair(tokenPairKey);
       const _sourceToken = _pair.source;
       const _targetToken = _pair.target;
       const _dodoPage = await this._prepareExchange(_pair, _sourceToken, _targetToken);
@@ -161,9 +192,9 @@ export class DodoExPlatform
     }
   }
 
-  async swapTokenUntil(tokenPair, exchangeCount)  {
+  async swapTokenUntil(tokenPairKey, exchangeCount)  {
     try{
-      const _pair = new ChainTokenPair(tokenPair);
+      const _pair = await this._getTokenPair(tokenPairKey);
       const _sourceToken = _pair.source;
       const _targetToken = _pair.target;
       const _dodoPage = await this._prepareExchange(_pair, _sourceToken, _targetToken);
@@ -189,7 +220,7 @@ export class DodoExPlatform
     LoggingService.starting("Token swap starting...");
     LoggingService.processing("Checking token pair...");
 
-    if(!pair.exist()) {
+    if(!pair.valid()) {
       const _message = `Token pair '${pair.name}' does not exist`;
       LoggingService.error(_message);
       LoggingService.error("Please check your configuration and try again");
