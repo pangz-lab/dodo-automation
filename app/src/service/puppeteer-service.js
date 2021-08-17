@@ -30,4 +30,17 @@ export class PuppeteerService {
       el => el.innerHTML
     );
   }
+
+  async isElementDisabledWithRetry(page, selector, allowedRetry) {
+    const _allowedRetry = allowedRetry;
+    let _retryCount = 1;
+    let _isDisabled = true;
+    while(_isDisabled && _retryCount <= _allowedRetry) {
+      _isDisabled = await this.isElementDisabled(page, selector);
+      await page.waitForTimeout(1000);
+      _retryCount++;
+    }
+
+    return _isDisabled;
+  }
 }
