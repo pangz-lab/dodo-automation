@@ -6,6 +6,7 @@ import { AppService } from  "../../../service/app-service.js";
 import { LoggingService } from "../../../service/logging-service.js"
 import { ChainTokenPair } from "../../chain-token-pair.js";
 import { ChainToken } from "../../chain-token.js";
+import { ChainPool } from "../../chain-pool.js";
 
 export class DodoExPlatform 
   extends BlockchainPlatformInterface {
@@ -113,38 +114,8 @@ export class DodoExPlatform
     }
   }
 
-  async _getTokenPair(tokenPairKey) {
-    try {
-      const _token = AppConfig.chain().token;
-      const _collection = _token.collection;
-      const _pair = _token.pair[tokenPairKey];
-      const _sourceToken = _collection[_pair.source];
-      const _targetToken = _collection[_pair.target];
-
-      return new ChainTokenPair({
-        name: tokenPairKey,
-        source: new ChainToken({
-          name: _pair.source,
-          value: _pair.valueRatio[0],
-          symbol: _sourceToken.symbol,
-          address: _sourceToken.address,
-        }),
-        target: new ChainToken({
-          name: _pair.target,
-          value: _pair.valueRatio[1],
-          symbol: _targetToken.symbol,
-          address: _targetToken.address,
-        })
-      });
-
-    } catch (e) {
-      LoggingService.error("Configuration error. Please check the setting and try again");
-      throw new Error("Token pair does not found!");
-    }
-  }
-
   async swapTokenTest(tokenPairKey) {
-    const _pair = await this._getTokenPair(tokenPairKey);
+    const _pair = this._getTokenPair(tokenPairKey);
     const _sourceToken = _pair.source;
     const _targetToken = _pair.target;
     const _dodoPage = await this._prepareExchange(_pair, _sourceToken, _targetToken);
@@ -296,13 +267,16 @@ export class DodoExPlatform
     return await Promise.resolve(true);
   }
 
-  async rebalancePool(pool) {
+  async rebalancePool(poolKey) {
+    const _pool = this._getPoolToken(poolKey);
+    console.log(_pool.address);
+    console.log(_pool.source.value);
     LoggingService.starting("Pool rebalance starting...");
-    const dodoPage = await this._preparePoolRebalance(pool);
-    await this.#poolRebalance._executeRebalance(dodoPage);
+    const dodoPage = await this._preparePoolRebalance(_pool.address);
+    await this.#poolRebalance.executeRebalance(dodoPage, _pool);
   }
 
-  async _preparePoolRebalance(pool) {
+  async _preparePoolRebalance(poolAddress) {
 
     // LoggingService.starting("Token swap starting...");
     // LoggingService.processing("Checking token pair...");
@@ -317,7 +291,7 @@ export class DodoExPlatform
     // LoggingService.processing("Token pair configuration found...");
     const dodoPage = await this.#browser.newPage();
     await dodoPage.goto(
-      this.#setting.poolRebalanceURL(pool)
+      this.#setting.poolRebalanceURL(poolAddress)
     );
     await dodoPage.bringToFront();
     return dodoPage;
@@ -327,6 +301,67 @@ export class DodoExPlatform
   async _exit() {
     LoggingService.closing('DodoExPlatform closing..');
     await this.#browser.close();
+  }
+
+  _getPoolToken(poolKey) {
+    try {
+      const _pool = AppConfig.chain().pool[poolKey];
+      const _tokenCollection = AppConfig.chain().token.collection;
+      const _tokenPair = _pool.tokenPair;
+      const _sourceToken = _tokenCollection[_tokenPair.source.name];
+      const _targetToken = _tokenCollection[_tokenPair.target.name];
+
+      return new ChainPool({
+        name: poolKey,
+        address: _pool.address,
+        source: new ChainToken({
+          name: _tokenPair.source.name,
+          value: _tokenPair.source.value,
+          symbol: _sourceToken.symbol,
+          address: _sourceToken.address,
+        }),
+        target: new ChainToken({
+          name: _tokenPair.target.name,
+          value: _tokenPair.target.value,
+          symbol: _targetToken.symbol,
+          address: _targetToken.address,
+        })
+      });
+
+    } catch (e) {
+      LoggingService.errorMessage("Configuration error. Please check the setting and try again");
+      throw new Error("Pool configuration not found!");
+    }
+  }
+  
+  _getTokenPair(tokenPairKey) {
+    try {
+      const _token = AppConfig.chain().token;
+      const _collection = _token.collection;
+      const _pair = _token.pair[tokenPairKey];
+      const _sourceToken = _collection[_pair.source];
+      const _targetToken = _collection[_pair.target];
+
+      return new ChainTokenPair({
+        name: tokenPairKey,
+        source: new ChainToken({
+          name: _pair.source,
+          value: _pair.valueRatio[0],
+          symbol: _sourceToken.symbol,
+          address: _sourceToken.address,
+        }),
+        target: new ChainToken({
+          name: _pair.target,
+          value: _pair.valueRatio[1],
+          symbol: _targetToken.symbol,
+          address: _targetToken.address,
+        })
+      });
+
+    } catch (e) {
+      LoggingService.errorMessage("Configuration error. Please check the setting and try again");
+      throw new Error("Token pair not found!");
+    }
   }
 
   _exchangeStatusMessage(isInfinite, currentIteration, allowedIteration) {

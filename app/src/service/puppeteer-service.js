@@ -15,6 +15,15 @@ export class PuppeteerService {
     return await page.evaluate( () => document.execCommand( 'selectall', false, null ) );
   }
 
+  async clearInput(page, element) {
+    await page.waitForSelector(element);
+    const el = await page.$(element);
+    await el.click();
+    await el.focus();
+    await el.click({clickCount: 3});
+    await el.press('Backspace');
+  }
+
   async isElementDisabled(page, elementSelector) {
     return await this.getElementProperty(
       page,

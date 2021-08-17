@@ -2,20 +2,30 @@ import { ChainToken } from "./chain-token.js";
 
 export class ChainPool {
   #name;
+  #address;
   #source;
   #target;
-  #exist;
-  #valueRatio;
   
-  constructor(name) {
-    const _def = { valueRatio: [], source: '', target: '' };
-    let _props = AppConfig.chain().token.pair[name];
+  constructor(props) {
+    this.#name = props.name;
+    this.#address = props.address;
+    this.#source = props.source;
+    this.#target = props.target;
+  }
 
-    this.#exist = (_props != undefined);
-    _props = (this.#exist) ? _props : _def;
-    this.#name = name;
-    this.#valueRatio = _props.valueRatio;
-    this.#source = new ChainToken(_props.source, this.#valueRatio[0]);
-    this.#target = new ChainToken(_props.target, this.#valueRatio[1]);
+  get name() {
+    return this.#name;
+  }
+  
+  get address() {
+    return this.#address;
+  }
+
+  get source() {
+    return this.#source;
+  }
+
+  get target() {
+    return this.#target;
   }
 }

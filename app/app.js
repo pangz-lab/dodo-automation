@@ -22,5 +22,5 @@ let platform = new DodoExPlatform(platformSetting);
   // await platform.swapTokenInfinite("500DC:500G");
   // await platform.swapTokenInfinite("500G:500DC");
   // await platform.swapTokenTest("500DC:500G");
-  await platform.rebalancePool("0xc88b273e93b0da6a27340708c3575700b5e8c615");
+  await platform.rebalancePool("500G:500DC");
 })();

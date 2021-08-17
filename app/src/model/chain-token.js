@@ -6,8 +6,6 @@ export class ChainToken {
   #address;
 
   constructor(props) {
-    // const _def = { name: '', value: -1, symbol: '', address: '' };
-    // AppConfig.chain().token.collection[name];
     this.#name = props.name;
     this.#value = props.value;
     this.#symbol = props.symbol;

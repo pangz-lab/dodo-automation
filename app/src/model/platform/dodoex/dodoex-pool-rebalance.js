@@ -13,23 +13,12 @@ export class DodoExPoolRebalance {
     this.#selectors = this.#setting.poolListSelectors();
   }
 
-  async _executeRebalance(page) {
+  async executeRebalance(page, pool) {
     const _selectors = this.#selectors;
     const _pptrService = this.#pptrService;
     await page.waitForSelector(_selectors.modifyParametersButton);
 
     const _allowedRetry = 10;
-    // let _isDisabled = true;
-
-    // while(_isDisabled && _retryCount <= _allowedRetry) {
-    //   _isDisabled = await _pptrService.isElementDisabled(
-    //     page,
-    //     _selectors.modifyParametersButton
-    //   );
-    //   await page.waitForTimeout(1000);
-    //   _retryCount++;
-    // }
-
     const _isDisabled = await _pptrService.isElementDisabledWithRetry(
       page,
       _selectors.modifyParametersButton,
@@ -47,28 +36,48 @@ export class DodoExPoolRebalance {
     await page.click(_selectors.modifyParametersButton);
     await this._acceptDisclaimerAgreement(page);
     
+    await this._setTokenAmount(page, pool);
+    
   }
 
   async _acceptDisclaimerAgreement(page) {
     const _selectors = this.#selectors;
     LoggingService.processing("Accepting disclaimer agreement...");
     
-    const _agreeButton = await page.waitForSelector(
-      _selectors.discalimer.agreeCheckbox
-    );
-
-    if(_agreeButton == null) {
-      return Promise.resolve(true);
+    try {
+      await page.waitForSelector(
+        _selectors.discalimer.agreeCheckbox,
+        {timeout: 2000}
+      );
+    } catch (e) {
+      LoggingService.processing("No disclaimer agreement posted...");
+      LoggingService.success("Proceeding with the operation...");
+      return await Promise.resolve(true);
     }
 
     await page.waitForTimeout(1000);
     await page.click(_selectors.discalimer.agreeCheckbox);
     await page.waitForTimeout(1000);
     await page.click(_selectors.discalimer.continueButton);
+    LoggingService.success("Disclaimer agreement accepted...");
   }
 
-  async _setTokenAmount(page, token) {
-    const _selectors = this.#selectors;
+  async _setTokenAmount(page, pool) {
+    LoggingService.processing("Setting token amount...");
+    const _selectors = this.#selectors.rebalanceForm;
+    const _sourceTokenAmount = pool.source.value.toString();
+    const _targetTokenAmount = pool.target.value.toString();
+    await page.waitForSelector(_selectors.sourceTokenInputField);
+    await page.waitForSelector(_selectors.targetTokenInputField);
 
+    console.log(_sourceTokenAmount);
+    console.log(_targetTokenAmount);
+    LoggingService.processing("Setting source token amount...");
+    await this.#pptrService.clearInput(page, _selectors.sourceTokenInputField);
+    await page.type(_selectors.sourceTokenInputField, _sourceTokenAmount, {delay: 100});
+    
+    LoggingService.processing("Setting target token amount...");
+    await this.#pptrService.clearInput(page, _selectors.targetTokenInputField);
+    await page.type(_selectors.targetTokenInputField, _targetTokenAmount, {delay: 100});
   }
 }
