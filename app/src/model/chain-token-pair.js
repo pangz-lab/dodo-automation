@@ -5,19 +5,16 @@ export class ChainTokenPair {
   #name;
   #source;
   #target;
-  #exist;
-  #valueRatio;
+  #valid;
   
-  constructor(name) {
-    const _def = { valueRatio: [], source: '', target: '' };
-    let _props = AppConfig.chain().token.pair[name];
-
-    this.#exist = (_props != undefined);
-    _props = (this.#exist) ? _props : _def;
-    this.#name = name;
-    this.#valueRatio = _props.valueRatio;
-    this.#source = new ChainToken(_props.source, this.#valueRatio[0]);
-    this.#target = new ChainToken(_props.target, this.#valueRatio[1]);
+  constructor(param) {
+    this.#name = param.name;
+    this.#source = param.source;
+    this.#target = param.target;
+    this.#valid = (
+      param.source != undefined ||
+      param.target != undefined
+    );
   }
 
   get name() {
@@ -32,7 +29,7 @@ export class ChainTokenPair {
     return this.#target;
   }
 
-  exist() {
-    return this.#exist;
+  valid() {
+    return this.#valid;
   }
 }

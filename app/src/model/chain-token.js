@@ -1,22 +1,17 @@
-import { AppConfig } from "../config/app-config.js";
 
 export class ChainToken {
   #name;
   #value;
   #symbol;
   #address;
-  #exist;
 
-  constructor(name, value) {
-    const _def = { symbol: '', address: '' };
-    let _props = AppConfig.chain().token.collection[name];
-
-    this.#exist = (_props != undefined);
-    _props = (this.#exist) ? _props : _def;
-    this.#name = name;
-    this.#value = value;
-    this.#symbol = _props.symbol;
-    this.#address = _props.address;
+  constructor(props) {
+    // const _def = { name: '', value: -1, symbol: '', address: '' };
+    // AppConfig.chain().token.collection[name];
+    this.#name = props.name;
+    this.#value = props.value;
+    this.#symbol = props.symbol;
+    this.#address = props.address;
   }
 
   get name() {
@@ -35,7 +30,12 @@ export class ChainToken {
     return this.#value;
   }
 
-  exist() {
-    return this.#exist;
+  valid() {
+    return (
+      this.#name == '' ||
+      this.#address == '' ||
+      this.#symbol == '' ||
+      this.#value == -1
+    );
   }
 }
