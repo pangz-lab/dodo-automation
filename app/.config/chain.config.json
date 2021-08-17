@@ -1,6 +1,12 @@
 {
   "pool" : {
-    "500G:500DC": "0xc88b273e93b0da6a27340708c3575700b5e8c615"
+    "500G:500DC": {
+      "address" : "0xc88b273e93b0da6a27340708c3575700b5e8c615",
+      "tokenPair": {
+        "source": { "name" : "500G", "value": 100 },
+        "target": { "name" : "500DC", "value": 5500 }
+      }
+    }
   },
   "token" : {
     "collection": {
