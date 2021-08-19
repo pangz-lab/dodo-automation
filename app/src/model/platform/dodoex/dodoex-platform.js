@@ -268,9 +268,8 @@ export class DodoExPlatform
   }
 
   async rebalancePool(poolKey) {
-    LoggingService.starting("Pool rebalance starting...");
-
     try {
+      LoggingService.starting("Pool rebalance starting...");
       const _pool = this._getPoolToken(poolKey);
       const _dodoPage = await this._preparePoolRebalancePage(_pool.address);
       const _operation = "Pool Rebalance";

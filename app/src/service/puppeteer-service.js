@@ -60,4 +60,8 @@ export class PuppeteerService {
 
     return _isDisabled;
   }
+
+  async showAlert(page, message) {
+    return await page.evaluate((e) => alert(e), message);
+  }
 }

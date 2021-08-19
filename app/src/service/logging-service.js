@@ -21,7 +21,7 @@ export class LoggingService {
 
   static errorMessage(message) {
     console.log('[⛔️⛔️⛔️⛔️⛔️⛔️⛔️⛔️⛔️⛔️⛔️⛔️]');
-    console.error(message);
+    console.error('   ➜   '+message);
     console.log('[⛔️⛔️⛔️⛔️⛔️⛔️⛔️⛔️⛔️⛔️⛔️⛔️]');
   }
 
