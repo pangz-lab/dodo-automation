@@ -65,7 +65,7 @@ export class DodoExPlatform
 
       const _log = 'Setup failed...';
       LoggingService.error(_log);
-      LoggingService.error(e);
+      LoggingService.errorMessage(e);
       LoggingService.closing('DodoExPlatform closing...');
       throw new Error(_log);
     }
@@ -288,8 +288,8 @@ export class DodoExPlatform
   _getTokenPair(tokenPairKey) {
     try {
       const _token = this.#setting.chain().token;
-      const _collection = _token.collection;
       const _pair = _token.pair[tokenPairKey];
+      const _collection = _token.collection;
       const _sourceToken = _collection[_pair.source];
       const _targetToken = _collection[_pair.target];
 

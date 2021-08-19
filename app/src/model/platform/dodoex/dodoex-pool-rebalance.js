@@ -40,7 +40,7 @@ export class DodoExPoolRebalance {
       if(_isDisabled) {
         const _message = "Pool parameters cannot be updated";
         LoggingService.error(_message);
-        LoggingService.errorMessag("Failed to initialize rebalance page");
+        LoggingService.errorMessag("Failed to initialize pool rebalance");
         throw new Error(_message);
       }
 
@@ -49,10 +49,12 @@ export class DodoExPoolRebalance {
       await this._acceptDisclaimerAgreement();
       await this._checkTokenPair();
 
+      return await Promise.resolve(true);
+
     } catch(e) {
-      const _message = "Error occured during balance preparation.";
+      const _message = "Error occured during pool rebalance preparation.";
       LoggingService.errorMessage(_message);
-      throw new Error(_message);
+      throw new Error(e);
     }
   }
 

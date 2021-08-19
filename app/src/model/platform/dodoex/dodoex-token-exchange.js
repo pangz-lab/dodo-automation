@@ -1,47 +1,54 @@
 import { LoggingService } from "../../../service/logging-service.js";
 
 export class DodoExTokenExchange {
-  #setting;
   #service;
-  #pptr;
-  #selectors;
   #page;
   #tokenPair;
+  #setting;
+  #selectors;
+  #pptrService;
 
   constructor(setting, service) {
     this.#setting = setting;
     this.#service = service;
-    this.#pptr = service.puppeteerService;
+    this.#pptrService = service.puppeteerService;
     this.#selectors = this.#setting.exchangeSelectors();
   }
 
   async prepare(page, tokenPair) {
+    LoggingService.starting("Preparing exchange...");
     this.#page = page;
     this.#tokenPair = tokenPair;
 
-    LoggingService.starting("Preparing exchange...");
+    try {
+      const _allowedRetry = 2;
+      let _retryCount = 0;
+      let _correctPair = await this._checkTokenPair();
 
-    const _allowedRetry = 2;
-    let _retryCount = 0;
-    let _correctPair = await this._checkTokenPair();
+      while(!_correctPair && _retryCount <= _allowedRetry) {
+        
+        LoggingService.warning("Incorrect token set...");
+        LoggingService.processing("Updating the token pair manually...");
+        await this._setupTokenPair();
 
-    while(!_correctPair && _retryCount <= _allowedRetry) {
-      
-      LoggingService.warning("Incorrect token set...");
-      LoggingService.processing("Updating the token pair manually...");
-      await this._setupTokenPair();
+        _correctPair = await this._checkTokenPair();
+        _retryCount++;
+      }
 
-      _correctPair = await this._checkTokenPair();
-      _retryCount++;
+      if(!_correctPair) {
+        const _message = "Please check your chain config then try again!";
+        LoggingService.error("Token pair is unexpected");
+        LoggingService.error(_message);
+        throw new Error(_message);
+      }
+
+      return await Promise.resolve(true);
+
+    } catch(e) {
+      const _message = "Error occured during token exchange preparation.";
+      LoggingService.errorMessage(_message);
+      throw new Error(e);
     }
-
-    if(!_correctPair) {
-      LoggingService.error("Token pair is unexpected");
-      LoggingService.error("Please check your chain config or DODO setting then try again!");
-      return await Promise.resolve(false);
-    }
-
-    return await Promise.resolve(true);
   }
 
   async allowOperation() {
@@ -51,10 +58,9 @@ export class DodoExTokenExchange {
   async execute() {
     const page = this.#page;
     const sourceToken = this.#tokenPair.source;
-    // const sourceTokenValue = sourceToken.value;
     const _allowedRetry = 60;
     const _tokenValue = sourceToken.value.toString();
-    const _pptrService = this.#pptr;
+    const _pptrService = this.#pptrService;
     const _selectors = this.#selectors.exchangeForm;
     const _preConfirmExchangeButton = _selectors.preConfirmExchangeButton;
     const _sourceTokenInputField = _selectors.sourceTokenInputField;
@@ -104,7 +110,7 @@ export class DodoExTokenExchange {
     const targetToken = this.#tokenPair.target.name;
 
     const _selectors = this.#selectors.exchangeForm;
-    const _pptrService = this.#pptr;
+    const _pptrService = this.#pptrService;
     let _tokenText = "";
 
     LoggingService.processing("Waiting for tokens...");
@@ -112,7 +118,11 @@ export class DodoExTokenExchange {
     await page.waitForSelector(_selectors.targetTokenSymbol);
 
     LoggingService.processing("Selecting source token...");
-    _tokenText = await _pptrService.getInnerHTML(page, _selectors.sourceTokenSymbol);
+    _tokenText = await _pptrService.getInnerHTML(
+      page,
+      _selectors.sourceTokenSymbol
+    );
+
     if(_tokenText.trim() != sourceToken.trim()) {
       await page.click(_selectors.sourceTokenSymbol);
       await this._selectTokenFromSearch(sourceToken);
@@ -144,7 +154,7 @@ export class DodoExTokenExchange {
     const targetToken = this.#tokenPair.target.name;
 
     const _selectors = this.#selectors.exchangeForm;
-    const _pptrService = this.#pptr;
+    const _pptrService = this.#pptrService;
 
     LoggingService.processing("Waiting for tokens...")
     await page.waitForSelector(_selectors.sourceTokenSymbol);
@@ -171,10 +181,10 @@ export class DodoExTokenExchange {
 
   async _selectTokenFromSearch(token) {
     try {
-      const page = this.#page;
       LoggingService.processing(`Searching for '${token}' token...`);
+      const page = this.#page;
       const _selectors = this.#selectors.tokenSearch;
-      const _pptrService = this.#pptr;
+      const _pptrService = this.#pptrService;
 
       LoggingService.processing('Inputting symbol...');
       await page.type(_selectors.searchField, token, {delay: 100});
