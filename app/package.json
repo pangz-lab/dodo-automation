@@ -4,7 +4,7 @@
   "description": "Automation for DodoExchange site",
   "main": "app.js",
   "bin": "app.js",
-  "type":"module",
+  "type": "module",
   "directories": {
     "lib": "lib",
     "test": "test"
@@ -17,7 +17,7 @@
   "dependencies": {
     "puppeteer": "^10.2.0"
   },
-  "pkg" : {
+  "pkg": {
     "scripts": [
       "src/config/*.js",
       "src/model/*.js",

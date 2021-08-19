@@ -13,7 +13,7 @@ export class DodoExPlatformSetting extends PlatformSettingInterface {
   constructor(wallet) {
     super();
     this.wallet = wallet;
-    this.#setting = AppConfig.platform().dodoex;
+    this.#setting = AppConfig.app().platform.dodoex;
     this.#url = this.#setting.webUrl;
     this.#endpoints = this.#setting.endpoints;
     this.#exchangeUrl = this.#url+'/'+this.#endpoints.exchange;
@@ -30,16 +30,30 @@ export class DodoExPlatformSetting extends PlatformSettingInterface {
     const _urlSuffix = poolAddress+"?network="+this.#tokenNetwork;
     return this.#poolManagementUrl+_urlSuffix;
   }
-
+  
   exchangeSelectors() {
     return this.#setting
     .exchange
     .selectors;
   }
 
-  poolListSelectors() {
+  poolRebalanceSelectors() {
     return this.#setting
     .pool
     .selectors;
+  }
+
+  postApprovalOperationSelectors() {
+    return this.#setting
+    .postApprovalOperation
+    .selectors;
+  }
+
+  chain() {
+    return AppConfig.chain();
+  }
+
+  generalSetting() {
+    return AppConfig.app().general;
   }
 }

@@ -24,9 +24,9 @@ export class AppConfig {
     return AppConfig.#appConfig;
   }
 
-  static platform() {
-    return AppConfig.#platformSetting;
-  }
+  // static platform() {
+  //   return AppConfig.#platformSetting;
+  // }
 
   static chain() {
     return AppConfig.#chainConfig;

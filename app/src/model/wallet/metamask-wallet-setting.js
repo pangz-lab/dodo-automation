@@ -11,6 +11,10 @@ export class MetaMaskWalletSetting {
     return this.#config;
   }
 
+  selectors() {
+    return AppConfig.app().platform.metamask.selectors;
+  }
+
   chainTokenSymbol() {
     return this._config().app.chainTokenSymbol;
   }

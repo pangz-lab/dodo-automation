@@ -53,7 +53,7 @@ export class DodoExPlatform
   async setup() {
     try {
       //TODO check app folder path
-      LoggingService.success('Setting up...');
+      LoggingService.processing('Setting up...');
       this.#browser = await this
         .#appService
         .puppeteer
@@ -103,12 +103,12 @@ export class DodoExPlatform
         this._exit();
       }
 
-      LoggingService.success('Wallet connected...');
+      LoggingService.closing('Wallet connected...');
       await page.close();
       return await Promise.resolve(true);
 
     } catch(e) {
-      LoggingService.error("Failed connecting to wallet");
+      LoggingService.error("Failed connection to wallet");
       LoggingService.errorMessage(e);
       this._exit();
     }
@@ -121,7 +121,7 @@ export class DodoExPlatform
     const _dodoPage = await this._prepareExchange(_pair, _sourceToken, _targetToken);
   }
 
-  async swapToken(tokenPair)  {
+  async swapToken(tokenPairKey)  {
     try{
       const _pair = await this._getTokenPair(tokenPairKey);
       const _sourceToken = _pair.source;
@@ -194,7 +194,7 @@ export class DodoExPlatform
     if(!pair.valid()) {
       const _message = `Token pair '${pair.name}' does not exist`;
       LoggingService.error(_message);
-      LoggingService.error("Please check your configuration and try again");
+      LoggingService.error("Please check your chain config and try again");
       throw new Error(_message);
     }
 
@@ -268,35 +268,75 @@ export class DodoExPlatform
   }
 
   async rebalancePool(poolKey) {
-    const _pool = this._getPoolToken(poolKey);
-    console.log(_pool.address);
-    console.log(_pool.source.value);
     LoggingService.starting("Pool rebalance starting...");
-    const dodoPage = await this._preparePoolRebalance(_pool.address);
-    await this.#poolRebalance.executeRebalance(dodoPage, _pool);
+
+    try {
+      const _pool = this._getPoolToken(poolKey);
+      const _dodoPage = await this._preparePoolRebalancePage(_pool.address);
+      const _operation = "Pool Rebalance";
+      await this.#poolRebalance.prepare(_dodoPage, _pool);
+
+      if(!await this.#poolRebalance.allowOperation()) {
+        LoggingService.closing("Rebalance completed");
+        return await Promise.resolve(false);
+      }
+
+      await this.#poolRebalance.execute();
+      await this.#wallet.approveTransaction(this.#browser, _dodoPage, _operation);
+      await this._postApprovalCheck(_dodoPage, _operation);
+      
+      LoggingService.closing("Rebalance completed");
+      return await Promise.resolve(true);
+
+    } catch (e) {
+      const _message = "Pool rebalance error!";
+      LoggingService.errorMessage(_message);
+      throw new Error(e);
+    }
   }
 
-  async _preparePoolRebalance(poolAddress) {
-
-    // LoggingService.starting("Token swap starting...");
-    // LoggingService.processing("Checking token pair...");
-
-    // if(!pair.exist()) {
-    //   const _message = `Token pair '${pair.name}' does not exist`;
-    //   LoggingService.error(_message);
-    //   LoggingService.error("Please check your configuration and try again");
-    //   throw new Error(_message);
-    // }
-
-    // LoggingService.processing("Token pair configuration found...");
-    const dodoPage = await this.#browser.newPage();
-    await dodoPage.goto(
+  async _preparePoolRebalancePage(poolAddress) {
+    const _dodoPage = await this.#browser.newPage();
+    await _dodoPage.goto(
       this.#setting.poolRebalanceURL(poolAddress)
     );
-    await dodoPage.bringToFront();
-    return dodoPage;
+    await _dodoPage.bringToFront();
+    return _dodoPage;
   }
 
+  async _postApprovalCheck(page, operation) {
+    const _pptrService = this.#pptrService;
+    const _selectors = this.#setting.postApprovalOperationSelectors();
+    const _success = _selectors.success;
+    const _error = _selectors.error;
+
+    const _postConfirmButton = _success.dialogConfirmButton;
+    const _upperRightErrorMessage = _error.upperRightModalMessage;
+    const _errorConfirmButton = _error.dialogErrorConfirmButton;
+
+    try {
+      await page.waitForSelector(_postConfirmButton);
+      await page.click(_postConfirmButton);
+      return await Promise.resolve(true);
+
+    } catch (e) {
+
+      await page.waitForTimeout(2000);
+      await page.waitForSelector(_upperRightErrorMessage);
+      const _message = await _pptrService.getInnerHTML(
+        page,
+        _upperRightErrorMessage
+      );
+
+      LoggingService.error(`${operation} encountered an error`);
+      LoggingService.errorMessage(_message);
+      LoggingService.errorMessage(e);
+
+      await page.waitForTimeout(2000);
+      await page.click(_errorConfirmButton);
+      return await Promise.resolve(false);
+    }
+  }
 
   async _exit() {
     LoggingService.closing('DodoExPlatform closing..');
@@ -305,23 +345,25 @@ export class DodoExPlatform
 
   _getPoolToken(poolKey) {
     try {
-      const _pool = AppConfig.chain().pool[poolKey];
-      const _tokenCollection = AppConfig.chain().token.collection;
+      const _chain = this.#setting.chain();
+      const _pool = _chain.pool[poolKey];
+      const _tokenCollection = _chain.token.collection;
       const _tokenPair = _pool.tokenPair;
-      const _sourceToken = _tokenCollection[_tokenPair.source.name];
-      const _targetToken = _tokenCollection[_tokenPair.target.name];
+      const _sourceToken = _tokenCollection[_tokenPair.source.key];
+      const _targetToken = _tokenCollection[_tokenPair.target.key];
 
       return new ChainPool({
         name: poolKey,
         address: _pool.address,
+        tradeSpeedPercent: _pool.tradeSpeedPercent,
         source: new ChainToken({
-          name: _tokenPair.source.name,
+          name: _tokenPair.source.key,
           value: _tokenPair.source.value,
           symbol: _sourceToken.symbol,
           address: _sourceToken.address,
         }),
         target: new ChainToken({
-          name: _tokenPair.target.name,
+          name: _tokenPair.target.key,
           value: _tokenPair.target.value,
           symbol: _targetToken.symbol,
           address: _targetToken.address,
@@ -329,14 +371,14 @@ export class DodoExPlatform
       });
 
     } catch (e) {
-      LoggingService.errorMessage("Configuration error. Please check the setting and try again");
+      LoggingService.errorMessage("Configuration error. Please check chain config and try again");
       throw new Error("Pool configuration not found!");
     }
   }
   
   _getTokenPair(tokenPairKey) {
     try {
-      const _token = AppConfig.chain().token;
+      const _token = this.#setting.chain().token;
       const _collection = _token.collection;
       const _pair = _token.pair[tokenPairKey];
       const _sourceToken = _collection[_pair.source];
@@ -359,7 +401,7 @@ export class DodoExPlatform
       });
 
     } catch (e) {
-      LoggingService.errorMessage("Configuration error. Please check the setting and try again");
+      LoggingService.errorMessage("Configuration error. Please check chain config and try again");
       throw new Error("Token pair not found!");
     }
   }

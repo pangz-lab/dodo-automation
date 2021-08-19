@@ -162,38 +162,38 @@ export class DodoExTokenExchange {
     }
   }
 
-  async _checkApproval(page) {
-    const _pptrService = this.#pptr;
-    const _selectors = this.#selectors;
-    const _success = _selectors.afterExchange.success;
-    const _error = _selectors.afterExchange.error;
+  // async _checkApproval(page) {
+  //   const _pptrService = this.#pptr;
+  //   const _selectors = this.#selectors.postApprovalOperation;
+  //   const _success = _selectors.afterExchange.success;
+  //   const _error = _selectors.afterExchange.error;
 
-    const _afterExchangeButton = _success.dialogConfirmButton;
-    const _upperRightErrorMessage = _error.upperRightModalMessage;
-    const _errorConfirmButton = _error.dialogErrorConfirmButton;
+  //   const _afterExchangeButton = _success.dialogConfirmButton;
+  //   const _upperRightErrorMessage = _error.upperRightModalMessage;
+  //   const _errorConfirmButton = _error.dialogErrorConfirmButton;
 
-    try {
-      await page.waitForSelector(_afterExchangeButton);
-      await page.click(_afterExchangeButton);
-      return await Promise.resolve(true);
+  //   try {
+  //     await page.waitForSelector(_afterExchangeButton);
+  //     await page.click(_afterExchangeButton);
+  //     return await Promise.resolve(true);
 
-    } catch (e) {
-      await page.waitForTimeout(2000);
-      await page.waitForSelector(_upperRightErrorMessage);
-      const _message = await _pptrService.getInnerHTML(
-        page,
-        _upperRightErrorMessage
-      );
+  //   } catch (e) {
+  //     await page.waitForTimeout(2000);
+  //     await page.waitForSelector(_upperRightErrorMessage);
+  //     const _message = await _pptrService.getInnerHTML(
+  //       page,
+  //       _upperRightErrorMessage
+  //     );
 
-      LoggingService.error("Token exchange encountered an error");
-      LoggingService.errorMessage(_message);
-      LoggingService.errorMessage(e);
+  //     LoggingService.error("Token exchange encountered an error");
+  //     LoggingService.errorMessage(_message);
+  //     LoggingService.errorMessage(e);
 
-      await page.waitForTimeout(2000);
-      await page.click(_errorConfirmButton);
-      return await Promise.resolve(false);
-    }
-  }
+  //     await page.waitForTimeout(2000);
+  //     await page.click(_errorConfirmButton);
+  //     return await Promise.resolve(false);
+  //   }
+  // }
 
   async _selectTokenFromSearch(page, token) {
     try {

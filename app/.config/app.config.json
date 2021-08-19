@@ -1,6 +1,10 @@
 {
-  "login": {
-    "retry": 3
+  "general": {
+    "poolRebalance": {
+      "alwaysPerformRebalance": true,
+      "getConfirmationScreenshot": true,
+      "screenshotPath": "./.screenshots/.pool_rebalance"
+    }
   },
   "browser": {
     "extension": {
@@ -45,8 +49,9 @@
             "targetTokenText": "#entry > section > div > section > div:nth-child(3) > section > section > div.indexstyled__BorderWrapper-dodo__sc-1drg6ws-2.indexstyled__RightWrapper-dodo__sc-1drg6ws-6.cdSZEu.ccSucc > div.SupplyTokenstyled__Wrapper-dodo__sc-1mpq20t-0.hvErsH > div.SupplyTokenstyled__Row-dodo__sc-1mpq20t-1.kmQNlg > div.TokenInput__Border-dodo__sc-74lcca-0.geihW > div > div > div.TokenDisp__Name-dodo__onyo6i-1.gfuMgU",
             "sourceTokenInputField": "#entry > section > div > section > div:nth-child(3) > section > section > div.indexstyled__BorderWrapper-dodo__sc-1drg6ws-2.indexstyled__RightWrapper-dodo__sc-1drg6ws-6.cdSZEu.ccSucc > div.SupplyTokenstyled__Wrapper-dodo__sc-1mpq20t-0.hvErsH > div:nth-child(1) > div.TokenInput__Border-dodo__sc-74lcca-0.geihW > input",
             "targetTokenInputField": "#entry > section > div > section > div:nth-child(3) > section > section > div.indexstyled__BorderWrapper-dodo__sc-1drg6ws-2.indexstyled__RightWrapper-dodo__sc-1drg6ws-6.cdSZEu.ccSucc > div.SupplyTokenstyled__Wrapper-dodo__sc-1mpq20t-0.hvErsH > div.SupplyTokenstyled__Row-dodo__sc-1mpq20t-1.kmQNlg > div.TokenInput__Border-dodo__sc-74lcca-0.geihW > input",
-            "confirmButton": "#entry > section > div > section > div:nth-child(3) > section > section > div.indexstyled__BorderWrapper-dodo__sc-1drg6ws-2.indexstyled__RightWrapper-dodo__sc-1drg6ws-6.cdSZEu.ccSucc > div.indexstyled__ButtonWrapper-dodo__sc-929isf-4.joyzDO > button.StyledButton__BaseButton-dodo__sc-1liqshi-0.StyledButton__SixtyPxButton-dodo__sc-1liqshi-1.StyledButton__BlockButton-dodo__sc-1liqshi-2.hIQnzR.eMtNGA.lkSURv",
-            "cancelButton": "#entry > section > div > section > div:nth-child(3) > section > section > div.indexstyled__BorderWrapper-dodo__sc-1drg6ws-2.indexstyled__RightWrapper-dodo__sc-1drg6ws-6.cdSZEu.ccSucc > div.indexstyled__ButtonWrapper-dodo__sc-929isf-4.joyzDO > button.StyledButton__BaseButton-dodo__sc-1liqshi-0.StyledButton__SixtyPxButton-dodo__sc-1liqshi-1.StyledButton__GhostButton-dodo__sc-1liqshi-3.hIQnzR.eMtNGA.eoDeSU"
+            "preConfirmButton": "#entry > section > div > section > div:nth-child(3) > section > section > div.indexstyled__BorderWrapper-dodo__sc-1drg6ws-2.indexstyled__RightWrapper-dodo__sc-1drg6ws-6.cdSZEu.ccSucc > div.indexstyled__ButtonWrapper-dodo__sc-929isf-4.joyzDO > button.StyledButton__BaseButton-dodo__sc-1liqshi-0.StyledButton__SixtyPxButton-dodo__sc-1liqshi-1.StyledButton__BlockButton-dodo__sc-1liqshi-2.hIQnzR.eMtNGA.lkSURv",
+            "preCancelButton": "#entry > section > div > section > div:nth-child(3) > section > section > div.indexstyled__BorderWrapper-dodo__sc-1drg6ws-2.indexstyled__RightWrapper-dodo__sc-1drg6ws-6.cdSZEu.ccSucc > div.indexstyled__ButtonWrapper-dodo__sc-929isf-4.joyzDO > button.StyledButton__BaseButton-dodo__sc-1liqshi-0.StyledButton__SixtyPxButton-dodo__sc-1liqshi-1.StyledButton__GhostButton-dodo__sc-1liqshi-3.hIQnzR.eMtNGA.eoDeSU",
+            "confirmButton": "body > div.fade.StyledModal-dodo__rb733r-0.feQShc.modal.show > div > div > div.StyledModal__Footer-dodo__rb733r-3.iiNedS.modal-footer > button"
           }
         }
       },
@@ -73,18 +78,28 @@
             "searchField": "#entry > div.MainPage_MainPage__1GwE3 > div > div.right > div > div > div.indexstyled__CardWrapperVertical-dodo__sc-9junse-5.iPoimT > div.indexstyled__Card-dodo__sc-9junse-6.cIITjA > div > div > div.TradeCard__Body-dodo__x2wmuu-2.fLjiUB > div.sc-jXcxbT.sc-fmdNqN.hNSlOo.hGtEoV > input",
             "firstResultText": "#entry > div.MainPage_MainPage__1GwE3 > div > div.right > div > div > div.indexstyled__CardWrapperVertical-dodo__sc-9junse-5.iPoimT > div.indexstyled__Card-dodo__sc-9junse-6.cIITjA > div > div > div.TradeCard__Body-dodo__x2wmuu-2.fLjiUB > div:nth-child(2) > div > div > div.sc-dvUynV.bANDlC > div.right-wrapper > div.right-left > div.symbol > span:nth-child(1)",
             "exitSearchButton": "#entry > div.MainPage_MainPage__1GwE3 > div > div.right > div > div > div.indexstyled__CardWrapperVertical-dodo__sc-9junse-5.iPoimT > div.indexstyled__Card-dodo__sc-9junse-6.cIITjA > div > div > div.TradeCard__Header-dodo__x2wmuu-0.cHJTJd > div > svg"
-          },
-          "afterExchange": {
-            "success": {
-              "dialogConfirmButton" : "#entry > div.Dialog__DialogBackdrop-dodo__olf3aw-0.ccRRLn.dialog-backdrop.fade-enter-done > div > div.Dialog__DialogBody-dodo__olf3aw-6.bLVQPQ.dialog-body > button"
-            },
-            "error": {
-              "upperRightModalMessage": "#entry > div.Notif__Area-dodo__sc-11ksl9b-0.loomMK > div > div.entry__NotifMain-dodo__sc-1x74mnd-2.jlJGvq > div.entry__NotifTitle-dodo__sc-1x74mnd-3.fussfA",
-              "dialogErrorMessage": "#entry > div.Dialog__DialogBackdrop-dodo__olf3aw-0.ccRRLn.dialog-backdrop.fade-enter-done > div > div.Dialog__DialogBody-dodo__olf3aw-6.bLVQPQ.dialog-body > div.Confirm__Title-dodo__sc-1wdhzt5-0.jYqpZJ",
-              "dialogErrorConfirmButton": "#entry > div.Dialog__DialogBackdrop-dodo__olf3aw-0.ccRRLn.dialog-backdrop.fade-enter-done > div > div.Dialog__DialogBody-dodo__olf3aw-6.bLVQPQ.dialog-body > div.Confirm__Actions-dodo__sc-1wdhzt5-2.fHaVkA > button.Confirm__Action-dodo__sc-1wdhzt5-3.elGxlw",
-              "dialogErrorCancelButton": "#entry > div.Dialog__DialogBackdrop-dodo__olf3aw-0.ccRRLn.dialog-backdrop.fade-enter-done > div > div.Dialog__DialogBody-dodo__olf3aw-6.bLVQPQ.dialog-body > div.Confirm__Actions-dodo__sc-1wdhzt5-2.fHaVkA > button.Confirm__Action-dodo__sc-1wdhzt5-3.cVdGyH"
-            }
           }
+        }
+      },
+      "postApprovalOperation": {
+        "selectors": {
+          "success": {
+            "dialogConfirmButton" : "#entry > div.Dialog__DialogBackdrop-dodo__olf3aw-0.ccRRLn.dialog-backdrop.fade-enter-done > div > div.Dialog__DialogBody-dodo__olf3aw-6.bLVQPQ.dialog-body > button"
+          },
+          "error": {
+            "upperRightModalMessage": "#entry > div.Notif__Area-dodo__sc-11ksl9b-0.loomMK > div > div.entry__NotifMain-dodo__sc-1x74mnd-2.jlJGvq > div.entry__NotifTitle-dodo__sc-1x74mnd-3.fussfA",
+            "dialogErrorMessage": "#entry > div.Dialog__DialogBackdrop-dodo__olf3aw-0.ccRRLn.dialog-backdrop.fade-enter-done > div > div.Dialog__DialogBody-dodo__olf3aw-6.bLVQPQ.dialog-body > div.Confirm__Title-dodo__sc-1wdhzt5-0.jYqpZJ",
+            "dialogErrorConfirmButton": "#entry > div.Dialog__DialogBackdrop-dodo__olf3aw-0.ccRRLn.dialog-backdrop.fade-enter-done > div > div.Dialog__DialogBody-dodo__olf3aw-6.bLVQPQ.dialog-body > div.Confirm__Actions-dodo__sc-1wdhzt5-2.fHaVkA > button.Confirm__Action-dodo__sc-1wdhzt5-3.elGxlw",
+            "dialogErrorCancelButton": "#entry > div.Dialog__DialogBackdrop-dodo__olf3aw-0.ccRRLn.dialog-backdrop.fade-enter-done > div > div.Dialog__DialogBody-dodo__olf3aw-6.bLVQPQ.dialog-body > div.Confirm__Actions-dodo__sc-1wdhzt5-2.fHaVkA > button.Confirm__Action-dodo__sc-1wdhzt5-3.cVdGyH"
+          }
+        }
+      }
+    },
+    "metamask": {
+      "selectors": {
+        "approvalScreen" : {
+          "confirmButton": "#app-content > div > div.main-container-wrapper > div > div.confirm-page-container-content > div.page-container__footer > footer > button.button.btn-primary.page-container__footer-button",
+          "rejectButton": "#app-content > div > div.main-container-wrapper > div > div.confirm-page-container-content > div.page-container__footer > footer > button.button.btn-default.page-container__footer-button"
         }
       }
     }

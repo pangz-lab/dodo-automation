@@ -1,16 +1,16 @@
-import { ChainToken } from "./chain-token.js";
-
 export class ChainPool {
   #name;
   #address;
   #source;
   #target;
+  #tradeSpeedPercent;
   
   constructor(props) {
     this.#name = props.name;
     this.#address = props.address;
     this.#source = props.source;
     this.#target = props.target;
+    this.#tradeSpeedPercent = props.tradeSpeedPercent;
   }
 
   get name() {
@@ -27,5 +27,9 @@ export class ChainPool {
 
   get target() {
     return this.#target;
+  }
+  
+  get tradeSpeedPercent() {
+    return this.#tradeSpeedPercent;
   }
 }

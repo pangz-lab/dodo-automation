@@ -27,7 +27,7 @@ export class ChainToken {
   get value() {
     return this.#value;
   }
-
+  //Refactor
   valid() {
     return (
       this.#name == '' ||

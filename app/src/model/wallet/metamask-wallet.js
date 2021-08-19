@@ -5,13 +5,15 @@ import { AppService } from  "../../service/app-service.js";
 export class MetaMaskWallet extends WalletInterface {
   #setting;
   #appService;
-  #puppeteerService;
+  #pptrService;
+  #selectors;
 
   constructor(setting) {
     super();
     this.#setting = setting;
     this.#appService = new AppService();
-    this.#puppeteerService = this.#appService.puppeteerService;
+    this.#pptrService = this.#appService.puppeteerService;
+    this.#selectors = this.#setting.selectors();
   }
 
   async login(page) {
@@ -19,13 +21,73 @@ export class MetaMaskWallet extends WalletInterface {
     const _selector = this.browserSetting().selector;
     const _passwordField = _selector.passwordField;
 
-    await this.#puppeteerService.resetInput(page, _passwordField);
+    await this.#pptrService.resetInput(page, _passwordField);
     await page.type(_passwordField, _password, {delay: 100});
     await page.click(_selector.loginButton , {delay: 3000});
 
     const loginStatus = await this._confirmLogin(page);
 
     return await Promise.resolve(loginStatus);
+  }
+
+  async approveTransaction(browser, page, operation) {
+    const _op = {
+      lc: operation.toLowerCase(),
+      uc1st: operation,
+    };
+
+    try {
+      const _popupConfirmPage = new Promise(x => browser.once(
+        'targetcreated', target => x(target.page())
+      ));
+      const _pptrService = this.#pptrService;
+      const _selectors = this.#selectors.approvalScreen;
+      // const _preConfirmExchangeButton = _selectors.button.preConfirmExchange;
+      const _confirmButton = _selectors.confirmButton;
+      const _rejectButton = _selectors.rejectButton;
+
+      // LoggingService.starting("Token approval starting...");
+      // await page.click(_preConfirmExchangeButton);
+
+      // LoggingService.processing("Confirming amount...");
+      const _confirmPage = await _popupConfirmPage;
+      await _confirmPage.waitForSelector(_confirmButton);
+      const _isApproveButtonDisabled = await _pptrService.isElementDisabled(
+        _confirmPage,
+        _confirmButton
+      );
+
+      if(_isApproveButtonDisabled) {
+        const _message = `${_op.uc1st} approval failed...`;
+        LoggingService.error(_message);
+        LoggingService.error("Please check your balance and try again");
+        await _confirmPage.click(_rejectButton);
+        throw new Error(_message);
+      }
+
+      LoggingService.processing(`Processing ${_op.lc}...`);
+      await _confirmPage.click(_confirmButton);
+
+      LoggingService.processing(`${_op.uc1st} approved...`);
+      LoggingService.processing("Confirming approval...");
+      
+      // const _isExchangeApproved = await this._checkApproval(page);
+      // LoggingService.closing(
+      //   (_isExchangeApproved)? 
+      //   `${_op.uc1st} completed`:
+      //   `Failed to process the ${_op.lc}`
+      // );
+      
+      // return await Promise.resolve(_isExchangeApproved);
+      return await Promise.resolve(true);
+
+    } catch (e) {
+      
+      LoggingService.error(`${_op.uc1st} approval error`);
+      LoggingService.errorMessage(e);
+      LoggingService.closing("Please check the input and setting then try again...");
+      return await Promise.resolve(false);
+    }
   }
   
   userAccount() {
@@ -77,7 +139,7 @@ export class MetaMaskWallet extends WalletInterface {
 
     const _mainTokenSymbol = this.#setting.chainTokenSymbol();
     const _activeWalletTokenSymbol = await this
-    .#puppeteerService
+    .#pptrService
     .getElementProperty(
       page,
       tokenSymbolSelector,
