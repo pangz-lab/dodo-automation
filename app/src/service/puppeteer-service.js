@@ -40,6 +40,14 @@ export class PuppeteerService {
     );
   }
 
+  async getValue(page, elementSelector) {
+    return await this.getElementProperty(
+      page,
+      elementSelector,
+      el => el.value
+    );
+  }
+
   async isElementDisabledWithRetry(page, selector, allowedRetry) {
     const _allowedRetry = allowedRetry;
     let _retryCount = 1;
