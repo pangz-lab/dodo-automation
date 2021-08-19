@@ -92,135 +92,10 @@ export class DodoExTokenExchange {
     }
 
     LoggingService.processing("Token is ready for exchange...");
-    LoggingService.processing("Confirming the exchange...");
+    LoggingService.processing("Confirming...");
     await page.click(_preConfirmExchangeButton);
     return await Promise.resolve(true);
   }
-  
-  // async approve(browser, page) {
-  //   try {
-      
-  //     const _popupConfirmPage = new Promise(x => browser.once(
-  //       'targetcreated', target => x(target.page())
-  //     ));
-  //     const _pptrService = this.#pptr;
-  //     const _selectors = this.#selectors.exchangeForm;
-  //     const _preConfirmExchangeButton = _selectors.button.preConfirmExchange;
-  //     const _exchangeConfirmButton = _selectors.button.confirmExchange;
-  //     const _exchangeRejectButton = _selectors.button.rejectExchange;
-
-  //     LoggingService.starting("Token approval starting...");
-  //     await page.click(_preConfirmExchangeButton);
-
-  //     LoggingService.processing("Confirming amount...");
-  //     const _confirmPage = await _popupConfirmPage;
-  //     await _confirmPage.waitForSelector(_exchangeConfirmButton);
-  //     const _isApproveButtonDisabled = await _pptrService.isElementDisabled(
-  //       _confirmPage,
-  //       _exchangeConfirmButton
-  //     );
-
-  //     if(_isApproveButtonDisabled) {
-  //       const _message = "Exchange approval failed...";
-  //       LoggingService.error(_message);
-  //       LoggingService.error("Please check your balance and try again");
-  //       await _confirmPage.click(_exchangeRejectButton);
-  //       throw new Error(_message);
-  //     }
-
-  //     LoggingService.processing("Processing exchange...");
-  //     await _confirmPage.click(_exchangeConfirmButton);
-
-  //     LoggingService.processing("Exchange approved...");
-  //     LoggingService.processing("Confirming approval...");
-      
-  //     const _isExchangeApproved = await this._checkApproval(page);
-  //     LoggingService.closing(
-  //       (_isExchangeApproved)? 
-  //       "Exchange completed":
-  //       "Failed to process the exchange"
-  //     );
-      
-  //     return await Promise.resolve(_isExchangeApproved);
-
-  //   } catch (e) {
-      
-  //     LoggingService.error("Token exchange approval error");
-  //     LoggingService.errorMessage(e);
-  //     LoggingService.closing("Please check the input and setting then try again...");
-  //     return await Promise.resolve(false);
-  //   }
-  // }
-
-  // async _checkApproval(page) {
-  //   const _pptrService = this.#pptr;
-  //   const _selectors = this.#selectors.postApprovalOperation;
-  //   const _success = _selectors.afterExchange.success;
-  //   const _error = _selectors.afterExchange.error;
-
-  //   const _afterExchangeButton = _success.dialogConfirmButton;
-  //   const _upperRightErrorMessage = _error.upperRightModalMessage;
-  //   const _errorConfirmButton = _error.dialogErrorConfirmButton;
-
-  //   try {
-  //     await page.waitForSelector(_afterExchangeButton);
-  //     await page.click(_afterExchangeButton);
-  //     return await Promise.resolve(true);
-
-  //   } catch (e) {
-  //     await page.waitForTimeout(2000);
-  //     await page.waitForSelector(_upperRightErrorMessage);
-  //     const _message = await _pptrService.getInnerHTML(
-  //       page,
-  //       _upperRightErrorMessage
-  //     );
-
-  //     LoggingService.error("Token exchange encountered an error");
-  //     LoggingService.errorMessage(_message);
-  //     LoggingService.errorMessage(e);
-
-  //     await page.waitForTimeout(2000);
-  //     await page.click(_errorConfirmButton);
-  //     return await Promise.resolve(false);
-  //   }
-  // }
-
-  // async _processExchange(dodoPage, sourceToken, targetToken) {
-  // async _processExchange(dodoPage, sourceToken, targetToken) {
-  //   const _exchangeIsReady = await this._validateTokenPair(
-  //     dodoPage,
-  //     sourceToken,
-  //     targetToken
-  //   );
-
-  //   if(_exchangeIsReady) {
-  //     await this._executeExchange(dodoPage, sourceToken);
-  //   }
-  // }
-
-  // async _validateTokenPair() {
-  //   const _allowedRetry = 2;
-  //   let _retryCount = 0;
-  //   let _correctPair = await this._checkTokenPair();
-
-  //   while(!_correctPair && _retryCount <= _allowedRetry) {
-      
-  //     LoggingService.warning("Incorrect token set...");
-  //     LoggingService.processing("Updating the token pair manually...");
-  //     await this._setupTokenPair();
-
-  //     _correctPair = await this._checkTokenPair();
-  //     _retryCount++;
-  //   }
-
-  //   if(!_correctPair) {
-  //     LoggingService.error("Token pair is unexpected");
-  //     LoggingService.error("Please check your chain config or DODO setting then try again!");
-  //     return await Promise.resolve(false);
-  //   }
-
-  //   return await Promise.resolve(true);
-  // }
 
   async _setupTokenPair() {
     LoggingService.starting("Setting up token pair...");
@@ -263,11 +138,11 @@ export class DodoExTokenExchange {
   }
 
   async _checkTokenPair() {
+    LoggingService.processing("Checking token pair setting...")
     const page = this.#page;
     const sourceToken = this.#tokenPair.source.name;
     const targetToken = this.#tokenPair.target.name;
 
-    LoggingService.starting("Checking token pair setting...")
     const _selectors = this.#selectors.exchangeForm;
     const _pptrService = this.#pptr;
 
@@ -294,23 +169,6 @@ export class DodoExTokenExchange {
     );
   }
 
-  // async _executeExchange(dodoPage, sourceToken) {
-  //   LoggingService.success("Token pair confirmed...");
-  //   await this.#tokenExchange.prepare(dodoPage, sourceToken.value);
-  //   await this.#tokenExchange.approve(this.#browser, dodoPage);
-  //   return await Promise.resolve(true);
-  // }
-  // async _executeExchange(dodoPage, sourceToken) {
-  //   LoggingService.success("Token pair confirmed...");
-  //   await this.#tokenExchange.prepare(dodoPage, sourceToken.value);
-  //   await this.#tokenExchange.approve(this.#browser, dodoPage);
-  //   return await Promise.resolve(true);
-  // }
-
-
-  //=================
-
-  
   async _selectTokenFromSearch(token) {
     try {
       const page = this.#page;
@@ -338,12 +196,13 @@ export class DodoExTokenExchange {
       if(_firstResultTokenText.trim() !== token.trim()) {
         const _message = `Failed to find '${token}' token...`;
         LoggingService.error(_message);
-        LoggingService.error("Please check your setting and try again");
+        LoggingService.errorMessage("Please check your setting and try again");
         throw new Error(_message);
       }
 
       LoggingService.processing('Checking if token can be selected...');
-      const _isTokenDisabled = await _pptrService.isElementDisabled(
+      const _isTokenDisabled = await _pptrService
+      .isElementDisabled(
         page,
         _selectors.firstResultText
       );

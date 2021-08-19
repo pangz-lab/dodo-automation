@@ -42,14 +42,9 @@ export class MetaMaskWallet extends WalletInterface {
       ));
       const _pptrService = this.#pptrService;
       const _selectors = this.#selectors.approvalScreen;
-      // const _preConfirmExchangeButton = _selectors.button.preConfirmExchange;
       const _confirmButton = _selectors.confirmButton;
       const _rejectButton = _selectors.rejectButton;
 
-      // LoggingService.starting("Token approval starting...");
-      // await page.click(_preConfirmExchangeButton);
-
-      // LoggingService.processing("Confirming amount...");
       const _confirmPage = await _popupConfirmPage;
       await _confirmPage.waitForSelector(_confirmButton);
       const _isApproveButtonDisabled = await _pptrService.isElementDisabled(
@@ -71,14 +66,6 @@ export class MetaMaskWallet extends WalletInterface {
       LoggingService.processing(`${_op.uc1st} approved...`);
       LoggingService.processing("Confirming approval...");
       
-      // const _isExchangeApproved = await this._checkApproval(page);
-      // LoggingService.closing(
-      //   (_isExchangeApproved)? 
-      //   `${_op.uc1st} completed`:
-      //   `Failed to process the ${_op.lc}`
-      // );
-      
-      // return await Promise.resolve(_isExchangeApproved);
       return await Promise.resolve(true);
 
     } catch (e) {

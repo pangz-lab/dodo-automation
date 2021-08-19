@@ -41,7 +41,6 @@ export class DodoExPlatform
     this.#browserLaunchSetting = {
       headless: false,
       defaultViewport: null,
-      //  executablePath: 'C:/Program Files/Google/Chrome/Application/chrome.exe',
       args: [
         `--disable-extensions-except=${_extensionPath}`,
         `--load-extension=${_extensionPath}`,
@@ -114,159 +113,19 @@ export class DodoExPlatform
     }
   }
 
-  // async swapTokenTest(tokenPairKey) {
-  //   const _pair = this._getTokenPair(tokenPairKey);
-  //   const _sourceToken = _pair.source;
-  //   const _targetToken = _pair.target;
-  //   const _dodoPage = await this._prepareExchange(_pair, _sourceToken, _targetToken);
-  // }
-
-  // async swapToken(tokenPairKey)  {
-  //   try{
-  //     const _pair = await this._getTokenPair(tokenPairKey);
-  //     const _sourceToken = _pair.source;
-  //     const _targetToken = _pair.target;
-  //     const _dodoPage = await this._prepareExchange(_pair, _sourceToken, _targetToken);
-    
-  //     this._exchangeStatusMessage(false, 1, 1);
-  //     await this._processExchange(_dodoPage, _sourceToken, _targetToken);
-  //     await _dodoPage.waitForTimeout(20000);
-
-  //   } catch(e) {
-
-  //     LoggingService.error("Error swapping tokens");
-  //     LoggingService.errorMessage(e);
-  //     this._exit();
-  //   }
-  // }
-
-  // async swapTokenInfinite(tokenPairKey)  {
-  //   try{
-  //     const _pair = await this._getTokenPair(tokenPairKey);
-  //     const _sourceToken = _pair.source;
-  //     const _targetToken = _pair.target;
-  //     const _dodoPage = await this._prepareExchange(_pair, _sourceToken, _targetToken);
-  //     let counter = 1;
-      
-  //     while(true) {
-  //       this._exchangeStatusMessage(true, counter, 0);
-  //       await this._processExchange(_dodoPage, _sourceToken, _targetToken);
-  //       await _dodoPage.waitForTimeout(20000);
-  //       counter++;
-  //     }
-
-  //   } catch(e) {
-
-  //     LoggingService.error("Error swapping tokens");
-  //     LoggingService.errorMessage(e);
-  //     this._exit();
-  //   }
-  // }
-
-  // async swapTokenUntil(tokenPairKey, exchangeCount)  {
-  //   try{
-  //     const _pair = await this._getTokenPair(tokenPairKey);
-  //     const _sourceToken = _pair.source;
-  //     const _targetToken = _pair.target;
-  //     const _dodoPage = await this._prepareExchange(_pair, _sourceToken, _targetToken);
-  //     let counter = 1;
-      
-  //     while(counter <= exchangeCount) {
-  //       this._exchangeStatusMessage(false, counter, exchangeCount);
-  //       await this._processExchange(_dodoPage, _sourceToken, _targetToken);
-  //       await _dodoPage.waitForTimeout(20000);
-  //       counter++;
-  //     }
-
-  //   } catch(e) {
-
-  //     LoggingService.error("Error swapping tokens");
-  //     LoggingService.errorMessage(e);
-  //     this._exit();
-  //   }
-  // }
-
-  // async _processExchange(dodoPage, sourceToken, targetToken) {
-  //   const _exchangeIsReady = await this
-  //   ._validateExchange(
-  //     dodoPage,
-  //     sourceToken,
-  //     targetToken
-  //   );
-
-  //   if(_exchangeIsReady) {
-  //     await this._executeExchange(dodoPage, sourceToken);
-  //   }
-  // }
-
-  // async _validateExchange(dodoPage, sourceToken, targetToken) {
-  //   let _retryCount = 0;
-  //   const _allowedRetry = 2;
-
-  //   let _correctPair = await this.#tokenExchange
-  //   .checkTokenPair(
-  //     dodoPage,
-  //     sourceToken.name,
-  //     targetToken.name
-  //   );
-
-  //   while(!_correctPair && _retryCount <= _allowedRetry) {
-  //     LoggingService.warning("Incorrect token set, updating...");
-  //     await this.#tokenExchange.setupTokenPair(
-  //       dodoPage,
-  //       sourceToken.name,
-  //       targetToken.name
-  //     );
-
-  //     _correctPair = await this.#tokenExchange.checkTokenPair(
-  //       dodoPage,
-  //       sourceToken.name,
-  //       targetToken.name
-  //     );
-  //     _retryCount++;
-  //   }
-
-  //   if(!_correctPair) {
-  //     LoggingService.error("Token pair is unexpected");
-  //     LoggingService.error("Please check your wallet and DODO setting then try again.");
-  //     this._exit();
-  //     return await Promise.resolve(false);
-  //   }
-
-  //   return await Promise.resolve(true);
-  // }
-
-  // async _executeExchange(dodoPage, sourceToken) {
-  //   LoggingService.success("Token pair confirmed...");
-  //   await this.#tokenExchange.prepare(dodoPage, sourceToken.value);
-  //   await this.#tokenExchange.approve(this.#browser, dodoPage);
-  //   return await Promise.resolve(true);
-  // }
-
-
-
-
-
-  
-
-
-//=======================
-
   async exchangeToken(tokenPairKey)  {
     try{
+      LoggingService.starting("Token Exchange starting...");
       const _pair = this._getTokenPair(tokenPairKey);
       const _sourceToken = _pair.source;
       const _targetToken = _pair.target;
-      const _dodoPage = await this._prepareTokenExchangePage(_sourceToken, _targetToken);
-    
-      //Relocate
-      // this._exchangeStatusMessage(false, 1, 1);
-      // await this._processExchange(_dodoPage, _sourceToken, _targetToken);
-      // await _dodoPage.waitForTimeout(20000);
-
-      //==
       const _operation = "Token Exchange";
-      const _messageOpComplete = "Token Exchange completed";
+      const _messageOpComplete = `${_operation} completed`;
+      const _dodoPage = await this._prepareTokenExchangePage(
+        _sourceToken,
+        _targetToken
+      );
+
       await this.#tokenExchange.prepare(_dodoPage, _pair);
 
       if(!await this.#tokenExchange.allowOperation()) {
@@ -283,15 +142,12 @@ export class DodoExPlatform
       return await Promise.resolve(true);
 
     } catch(e) {
-
-      LoggingService.error("Error swapping tokens");
-      LoggingService.errorMessage(e);
-      this._exit();
+      
+      const _message = "Token Exchange error!";
+      LoggingService.errorMessage(_message);
+      throw new Error(e);
     }
   }
-
-
-//=======================
 
   async rebalancePool(poolKey) {
     try {
@@ -315,15 +171,14 @@ export class DodoExPlatform
       return await Promise.resolve(true);
 
     } catch (e) {
-      const _message = "Pool rebalance error!";
+      const _message = "Pool Rebalance error!";
       LoggingService.errorMessage(_message);
       throw new Error(e);
     }
   }
 
   async _prepareTokenExchangePage(sourceToken, targetToken) {
-    // LoggingService.starting("Token swap starting...");
-    // LoggingService.processing("Token pair configuration found...");
+    LoggingService.processing("Preparing page...");
     const dodoPage = await this.#browser.newPage();
     await dodoPage.goto(
       this.#setting.tokenExchangeURL(
@@ -336,6 +191,7 @@ export class DodoExPlatform
   }
 
   async _preparePoolRebalancePage(poolAddress) {
+    LoggingService.processing("Preparing page...");
     const _dodoPage = await this.#browser.newPage();
     await _dodoPage.goto(
       this.#setting.poolRebalanceURL(poolAddress)
@@ -425,6 +281,7 @@ export class DodoExPlatform
       LoggingService.error("Please check your chain config and try again");
       throw new Error(_message);
     }
+
     return true;
   }
   
@@ -456,11 +313,5 @@ export class DodoExPlatform
       LoggingService.errorMessage("Configuration error. Please check chain config and try again");
       throw new Error("Token pair not found!");
     }
-  }
-
-  _exchangeStatusMessage(isInfinite, currentIteration, allowedIteration) {
-    LoggingService.starting(
-      `Exchanging from ${currentIteration} to `+((isInfinite)? 'infinity': allowedIteration)
-    );
   }
 }
