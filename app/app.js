@@ -22,8 +22,24 @@ let platform = new DodoExPlatform(platformSetting);
   // await platform.swapTokenInfinite("500DC:500G");
   // await platform.swapTokenInfinite("500G:500DC");
   // await platform.swapTokenTest("500DC:500G");
-  await platform.exchangeToken("500G:500DC");
-  await platform.rebalancePool("500G:500DC");
-  await platform.exchangeToken("500DC:500G");
-  await platform.rebalancePool("500G:500DC");
+  const s1 = await platform.createServer('tokenExchange', "500G:500DC");
+  const s2 = await platform.createServer('tokenExchange', "500DC:500G");
+  // const s3 = await platform.createServer('poolRebalance', "500G:500DC");
+  // await platform.useServer(s1).exchangeToken();
+  // await platform.useServer(s2).exchangeToken();
+  // await platform.useServer(s3).rebalancePool();
+  // await platform.useServer(s2).exchangeToken();
+  // await platform.useServer(s3).rebalancePool();
+  let counter = 1;
+  while(counter <= 10) {
+    await platform.useServer(s1).exchangeToken();
+    await platform.useServer(s2).exchangeToken();
+    counter++;
+  }
+
+
+  // await platform.exchangeToken("500G:500DC");
+  // await platform.rebalancePool("500G:500DC");
+  // await platform.exchangeToken("500DC:500G");
+  // await platform.rebalancePool("500G:500DC");
 })();
