@@ -22,9 +22,10 @@ export class MetaMaskWalletSetting {
   browserSetting() {
     const _app = this.#config.app;
     const _appSetting = this.#config.appSetting;
+    const _extLocalPath = _appSetting.localPath+_appSetting.version;
     return {
       extension: {
-        path: _appSetting.localPath,
+        path: _extLocalPath,
         url: _appSetting.browserUrl,
       },
       userProfile: {
