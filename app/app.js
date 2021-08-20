@@ -14,25 +14,17 @@ let platform = new DodoExPlatform(platformSetting);
 (async () => {
   await platform.setup();
   await platform.connectToWallet();
-  // await platform.swapToken("500G:500DC");
-  // await platform.swapToken("500DC:500G");
-  // await platform.swapTokenUntil("500G:500DC", 5);
-  // await platform.swapTokenUntil("500DC:500G", 5);
-  // await platform.swapTokenUntil("500G:500DC", 2);
-  // await platform.swapTokenInfinite("500DC:500G");
-  // await platform.swapTokenInfinite("500G:500DC");
-  // await platform.swapTokenTest("500DC:500G");
+
   const s1 = await platform.createServer('tokenExchange', "500G:500DC");
   const s2 = await platform.createServer('tokenExchange', "500DC:500G");
-  // const s3 = await platform.createServer('poolRebalance', "500G:500DC");
+  const s3 = await platform.createServer('poolRebalance', "500G:500DC");
+
   // await platform.useServer(s1).exchangeToken();
-  // await platform.useServer(s2).exchangeToken();
-  // await platform.useServer(s3).rebalancePool();
-  // await platform.useServer(s2).exchangeToken();
   // await platform.useServer(s3).rebalancePool();
   let counter = 1;
-  while(counter <= 10) {
+  while(counter <= 2) {
     await platform.useServer(s1).exchangeToken();
+    await platform.useServer(s3).rebalancePool();
     await platform.useServer(s2).exchangeToken();
     counter++;
   }
