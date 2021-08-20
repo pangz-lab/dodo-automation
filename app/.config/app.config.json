@@ -11,10 +11,10 @@
       "wallet": {
         "metamask": {
           "appSetting": {
-            "version" : "9.8.4_0",
+            "version" : "10.0.2_0",
             "folderName": "nkbihfbeogaeaoehlefnkodbefgpgknn",
             "browserUrl": "chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#unlock",
-            "localPath": "C:/Users/pangz/AppData/Local/Google/Chrome/User Data/Default/Extensions/nkbihfbeogaeaoehlefnkodbefgpgknn/9.8.4_0",
+            "localPath": "C:/Users/pangz/AppData/Local/Google/Chrome/User Data/Default/Extensions/nkbihfbeogaeaoehlefnkodbefgpgknn/",
             "userProfileDataPath": "C:/Users/pangz/AppData/Local/Chromium/User Data/Profile 1/"
           },
           "app": {
