@@ -1,5 +1,3 @@
-import { AppConfig } from "../config/app-config.js";
-import { ChainToken } from "./chain-token.js";
 
 export class ChainTokenPair {
   #name;
