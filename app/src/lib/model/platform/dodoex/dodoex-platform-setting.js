@@ -1,4 +1,4 @@
-import { PlatformSettingInterface } from "../../../../lib/model/platform-setting-interface.js";
+import { PlatformSettingInterface } from "../../interface/platform-setting-interface.js";
 import { AppConfig } from "../../../config/app-config.js";
 
 export class DodoExPlatformSetting extends PlatformSettingInterface {

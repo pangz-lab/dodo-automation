@@ -1,4 +1,4 @@
-import { BlockchainPlatformInterface } from "../../../../lib/model/blockchain-platform-interface.js";
+import { BlockchainPlatformInterface } from "../../interface/blockchain-platform-interface.js";
 import { DodoExTokenExchange } from "./dodoex-token-exchange.js";
 import { DodoExPoolRebalance } from "./dodoex-pool-rebalance.js";
 import { AppConfig } from "../../../config/app-config.js";
