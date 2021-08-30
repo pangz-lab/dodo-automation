@@ -1,1 +1,1 @@
-nexe --build app.js --verbose -r "src/**/*.mjs"
+nexe --build app.js --verbose -r "./src/**/*.js"
