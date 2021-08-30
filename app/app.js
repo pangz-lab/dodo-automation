@@ -1,7 +1,9 @@
-import { DodoExPlatform } from './src/lib/model/platform/dodoex/dodoex-platform.js';
-import { DodoExPlatformSetting } from  "./src/lib/model/platform/dodoex/dodoex-platform-setting.js";
+import { Command } from 'commander';
+import { DodoExPlatform } from './src/lib/domain/platform/dodoex/dodoex-platform.js';
+import { DodoExPlatformSetting } from  "./src/lib/domain/platform/dodoex/dodoex-platform-setting.js";
 import { MetaMaskWallet } from  "./src/lib/model/wallet/metamask-wallet.js";
 import { MetaMaskWalletSetting } from  "./src/lib/model/wallet/metamask-wallet-setting.js";
+import { CliRunner } from './src/app/cli-runner.js';
 
 let platformSetting = new DodoExPlatformSetting(
   new MetaMaskWallet(
@@ -9,29 +11,41 @@ let platformSetting = new DodoExPlatformSetting(
   )
 );
 
-let platform = new DodoExPlatform(platformSetting);
+const cmd = new Command();
+const cliRunner = new CliRunner(new DodoExPlatform(platformSetting));
 
-(async () => {
-  await platform.setup();
-  await platform.connectToWallet();
+const featureParams = [
+  cliRunner.features.walletConnection,
+  cliRunner.features.tokenExchange,
+  cliRunner.features.poolRebalance,
+];
 
-  const s1 = await platform.createServer('tokenExchange', "500G:500DC");
-  const s2 = await platform.createServer('tokenExchange', "500DC:500G");
-  const s3 = await platform.createServer('poolRebalance', "500G:500DC");
+function _setup(feature, prev) {
+  cliRunner.setup({feature: feature, options: cmd.opts()})
+}
 
-  await platform.useServer(s1).exchangeToken();
-  // await platform.useServer(s3).rebalancePool();
-  // let counter = 1;
-  // while(counter <= 2) {
-  //   await platform.useServer(s1).exchangeToken();
-  //   await platform.useServer(s3).rebalancePool();
-  //   await platform.useServer(s2).exchangeToken();
-  //   counter++;
-  // }
+function _dryRun() {
+
+}
+
+function _run() {
+
+}
 
 
-  // await platform.exchangeToken("500G:500DC");
-  // await platform.rebalancePool("500G:500DC");
-  // await platform.exchangeToken("500DC:500G");
-  // await platform.rebalancePool("500G:500DC");
-})();
+cmd
+  .option('-s, --setup <feature>', 'setting up a feature', _setup)
+  .option('-d, --dryrun <feature>', 'execute a dryrun of the feature', _dryRun)
+  .option('-r, --run <feature>', 'execute a feature', _run)
+  // .addOption(new Option('-s, --setup <feature>', 'setting up a feature').choices([features.walletConnection]))
+  // .addOption(new Option('-d, --dryrun <feature>', 'execute a dryrun of the feature').choices(featureParams))
+  // .addOption(new Option('-r, --run <feature>', 'execute a feature').choices(featureParams));
+
+/**
+const options = cmd.opts();
+if (options.debug) console.log(options);
+console.log('pizza details:');
+if (options.small) console.log('- small pizza size');
+if (options.pizzaType) console.log(`- ${options.pizzaType}`);
+*/
+cmd.parse(process.argv);

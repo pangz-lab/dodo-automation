@@ -1,12 +1,12 @@
-import { BlockchainPlatformInterface } from "../../interface/blockchain-platform-interface.js";
+import { BlockchainPlatformInterface } from "../../../model/interface/blockchain-platform-interface.js";
 import { DodoExTokenExchange } from "./dodoex-token-exchange.js";
 import { DodoExPoolRebalance } from "./dodoex-pool-rebalance.js";
 import { AppConfig } from "../../../config/app-config.js";
 import { AppService } from  "../../../service/app-service.js";
 import { LoggingService } from "../../../service/logging-service.js"
-import { ChainTokenPair } from "../../chain-token-pair.js";
-import { ChainToken } from "../../chain-token.js";
-import { ChainPool } from "../../chain-pool.js";
+import { ChainTokenPair } from "../../../model/chain-token-pair.js";
+import { ChainToken } from "../../../model/chain-token.js";
+import { ChainPool } from "../../../model/chain-pool.js";
 
 export class DodoExPlatform 
   extends BlockchainPlatformInterface {
@@ -77,19 +77,34 @@ export class DodoExPlatform
     }
   }
 
+  async openWallet() {
+    LoggingService.starting('Connecting to wallet...');
+    const metaMaskTab = await this.#pptrService.findTabWithUrl(
+      this.#browser,
+      this.#wallet
+        .browserSetting()
+        .extension
+        .url
+    );
+
+    const page = await metaMaskTab.page();
+    await page.bringToFront();
+    return page;
+  }
+
   async connectToWallet() {
     try {
-      LoggingService.starting('Connecting to wallet...');
-      const metaMaskTab = await this.#pptrService.findTabWithUrl(
-        this.#browser,
-        this.#wallet
-          .browserSetting()
-          .extension
-          .url
-      );
+      // LoggingService.starting('Connecting to wallet...');
+      // const metaMaskTab = await this.#pptrService.findTabWithUrl(
+      //   this.#browser,
+      //   this.#wallet
+      //     .browserSetting()
+      //     .extension
+      //     .url
+      // );
 
-      const page = await metaMaskTab.page();
-      await page.bringToFront();
+      // await page.bringToFront();
+      const page = await this.openWallet();
 
       let _loginAttempt = 1;
       let _loginSuccessful = false;
@@ -225,6 +240,10 @@ export class DodoExPlatform
     }
 
     return _server;
+  }
+
+  async showMessage(page, message) {
+    await this.#pptrService.showAlert(page, message);
   }
 
   _setActiveServer(server) {
