@@ -3,10 +3,8 @@ import fs from "fs";
 export class AppConfig {
   static _configFileData = {};
   static _paths = {
-    // app: '.config/app.config.json',
-    // chain: '.config/chain.config.json'
-    app: __dirname+'.config/app.config.json',
-    chain: __dirname+'.config/.config/chain.config.json'
+    app: '.config/app.config.json',
+    chain: '.config/chain.config.json'
   };
   static LOGIN_RETRY = 3;
 
