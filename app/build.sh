@@ -1,1 +1,1 @@
-pkg . --no-bytecode --public-packages * --public --experimental-modules
+nexe --build app.js --verbose -r "src/**/*.mjs"
