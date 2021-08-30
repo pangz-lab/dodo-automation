@@ -2,8 +2,8 @@
   "name": "dodo-automation",
   "version": "1.0.0",
   "description": "Automation for DodoExchange site",
-  "main": "app.js",
-  "bin": "app.js",
+  "main": "app.mjs",
+  "bin": "app.mjs",
   "type": "module",
   "directories": {
     "lib": "lib",
@@ -26,5 +26,8 @@
       "src/model/wallet/*.js",
       "src/service/*.js"
     ]
+  },
+  "devDependencies": {
+    "@vercel/ncc": "^0.30.0"
   }
 }
