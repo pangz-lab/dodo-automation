@@ -94,16 +94,6 @@ export class DodoExPlatform
 
   async connectToWallet(account) {
     try {
-      // LoggingService.starting('Connecting to wallet...');
-      // const metaMaskTab = await this.#pptrService.findTabWithUrl(
-      //   this.#browser,
-      //   this.#wallet
-      //     .browserSetting()
-      //     .extension
-      //     .url
-      // );
-
-      // await page.bringToFront();
       const page = await this.openWallet();
 
       let _loginAttempt = 1;
@@ -134,24 +124,37 @@ export class DodoExPlatform
     }
   }
 
+  async prepareTokenExchange() {
+    const _server = this._getActiveServer();
+    await _server.page.bringToFront();
+    const _pair = _server.tokenPair;
+    const _operation = "Token Exchange";
+    const _messageOpComplete = `${_operation} completed`;
+    const _dodoPage = _server.page;
+    await this.#tokenExchange.prepare(_dodoPage, _pair);
+
+    return {
+      operation: _operation,
+      dodoPage: _dodoPage,
+      messageOpComplete: _messageOpComplete
+    };
+  }
+
   async exchangeToken()  {
     try{
       this._setupPreCheck();
       LoggingService.starting("Token Exchange starting...");
-      const _server = this._getActiveServer();
-      await _server.page.bringToFront();
-      const _pair = _server.tokenPair;
-      // const _sourceToken = _pair.source;
-      // const _targetToken = _pair.target;
-      const _operation = "Token Exchange";
-      const _messageOpComplete = `${_operation} completed`;
-      // const _dodoPage = await this._prepareTokenExchangePage(
-      //   _sourceToken,
-      //   _targetToken
-      // );
-      const _dodoPage = _server.page;
-
-      await this.#tokenExchange.prepare(_dodoPage, _pair);
+      // const _server = this._getActiveServer();
+      // await _server.page.bringToFront();
+      // const _pair = _server.tokenPair;
+      // const _operation = "Token Exchange";
+      // const _messageOpComplete = `${_operation} completed`;
+      // const _dodoPage = _server.page;
+      // await this.#tokenExchange.prepare(_dodoPage, _pair);
+      const p = await this.prepareTokenExchange();
+      const _operation = p.operation;
+      const _dodoPage = p.dodoPage;
+      const _messageOpComplete = p.messageOpComplete;
 
       if(!await this.#tokenExchange.allowOperation()) {
         LoggingService.closing(_messageOpComplete);
@@ -174,18 +177,34 @@ export class DodoExPlatform
     }
   }
 
+  async preparePoolRebalance() {
+    const _server = this._getActiveServer();
+    await _server.page.bringToFront();
+    
+    const _pool = _server.pool;
+    const _dodoPage = _server.page;
+    const _operation = "Pool Rebalance";
+    await this.#poolRebalance.prepare(_dodoPage, _pool);
+    return {
+      dodoPage: _dodoPage,
+      operation: _operation,
+    }
+  }
+
   async rebalancePool() {
     try {
       this._setupPreCheck();
       LoggingService.starting("Pool rebalance starting...");
-      const _server = this._getActiveServer();
-      await _server.page.bringToFront();
-      // const _pool = this._getPoolToken(poolKey);
-      const _pool = _server.pool;
-      // const _dodoPage = await this._preparePoolRebalancePage(_pool.address);
-      const _dodoPage = _server.page;
-      const _operation = "Pool Rebalance";
-      await this.#poolRebalance.prepare(_dodoPage, _pool);
+      // const _server = this._getActiveServer();
+      // await _server.page.bringToFront();
+
+      // const _pool = _server.pool;
+      // const _dodoPage = _server.page;
+      // const _operation = "Pool Rebalance";
+      // await this.#poolRebalance.prepare(_dodoPage, _pool);
+      const p = await this.preparePoolRebalance();
+      const _dodoPage = p.dodoPage;
+      const _operation = p.operation;
 
       if(!await this.#poolRebalance.allowOperation()) {
         LoggingService.closing("Rebalance completed");

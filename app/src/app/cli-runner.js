@@ -8,7 +8,7 @@ export class CliRunner {
   features = {
     "walletConnection" : "wallet-connection",
     "tokenExchange" : "token-exchange",
-    "poolRebalance" : "pool-reblance ",
+    "poolRebalance" : "pool-rebalance",
   };
   #messages = {
     "setup": {
@@ -19,7 +19,9 @@ export class CliRunner {
     ✔️ Close this screen once the setup is complete.
     
     ⚠️ If the wallet is compromised, delete the user data or reinstall the extension then rerun this setup.`
-    }
+    },
+    "invalidAccountFile": ` >> Invalid account. Either file does not exist or format is incorrect.`,
+    "invalidTokenPair": ` >> Cannot proceed. Token pair setting does not exist.`
 };
 
   constructor(platform) {
@@ -37,10 +39,9 @@ export class CliRunner {
 
   async app(param) {
     const options = param.options;
-
-    if(options.setup) return this._setup(param);
-    if(options.dryRun) return this._dryRun(param);
-    if(options.run) return this._run(param);
+    if(options.setup) { return this._setup(param) };
+    if(options.dryRun) { return this._dryRun(param) };
+    if(options.run) { return this._run(param) };
   }
 
   async _setup(param) {
@@ -61,49 +62,136 @@ export class CliRunner {
 
   async _dryRun(param) {
     const _feature = param.options.dryRun;
+    const _tokenPair = param.options.tokenPair;
     const _platform = this._platformObj();
+    const _messageInvalidAccount = this.#messages.invalidAccountFile;
+    const _messageTokenPair = this.#messages.invalidTokenPair;
+    let _server, _accountFile;
 
     switch(_feature) {
       case this.features.walletConnection:
-        const _filePath = await this.#readlineQuestion(' >> Enter account file: ');
-        const _account = this._openFile(_filePath);
-
-        if(_account == null || !this._validAccount(_account)) {
-          console.log(" >> Invalid account. Either file does not exist or format is incorrect.");
+        _accountFile = await this._getAccountFile();
+        if(!_accountFile.valid) {
+          console.log(_messageInvalidAccount);
           process.exit();
         }
+        
         await _platform.setup();
-        return await _platform.connectToWallet(_account);
+        return await _platform.connectToWallet(_accountFile.account);
       
       case this.features.tokenExchange:
-        if(param.tokenPair == undefined) {
-          console.log(" >> Cannot proceed. Token pair setting does not exist");
+        if(_tokenPair == undefined) {
+          console.log(_messageTokenPair);
           process.exit();
         }
-        const _server = await platform.createServer('tokenExchange', param.tokenPair);
-        await _platform.useServer(_server).exchangeToken();
- 
-        break;
+
+        _accountFile = await this._getAccountFile();
+        if(!_accountFile.valid) {
+          console.log(_messageInvalidAccount);
+          process.exit();
+        }
+
+        await _platform.setup();
+        await _platform.connectToWallet(_accountFile.account);
+
+        _server = await _platform.createServer('tokenExchange', _tokenPair);
+        return await _platform.useServer(_server).prepareTokenExchange();
+
+      case this.features.poolRebalance:
+        if(_tokenPair == undefined) {
+          console.log(_messageTokenPair);
+          process.exit();
+        }
+
+        _accountFile = await this._getAccountFile();
+        if(!_accountFile.valid) {
+          console.log(_messageInvalidAccount);
+          process.exit();
+        }
+
+        await _platform.setup();
+        await _platform.connectToWallet(_accountFile.account);
+
+        _server = await _platform.createServer('poolRebalance', _tokenPair);
+        return await _platform.useServer(_server).preparePoolRebalance();
       
       default: console.log(` >> Unknown feature to dry-run: ${_feature}`);
     }
   }
 
-  async _run() {
+  async _run(param) {
+    const _feature = param.options.run;
+    const _tokenPair = param.options.tokenPair;
+    const _platform = this._platformObj();
+    const _messageInvalidAccount = this.#messages.invalidAccountFile;
+    const _messageTokenPair = this.#messages.invalidTokenPair;
+    let _server, _accountFile;
 
+    switch(_feature) {
+      case this.features.walletConnection:
+        _accountFile = await this._getAccountFile();
+        if(!_accountFile.valid) {
+          console.log(_messageInvalidAccount);
+          process.exit();
+        }
+        
+        await _platform.setup();
+        return await _platform.connectToWallet(_accountFile.account);
+      
+      case this.features.tokenExchange:
+        if(_tokenPair == undefined) {
+          console.log(_messageTokenPair);
+          process.exit();
+        }
+
+        _accountFile = await this._getAccountFile();
+        if(!_accountFile.valid) {
+          console.log(_messageInvalidAccount);
+          process.exit();
+        }
+
+        await _platform.setup();
+        await _platform.connectToWallet(_accountFile.account);
+
+        _server = await _platform.createServer('tokenExchange', _tokenPair);
+        return await _platform.useServer(_server).exchangeToken();
+
+      case this.features.poolRebalance:
+        if(_tokenPair == undefined) {
+          console.log(_messageTokenPair);
+          process.exit();
+        }
+
+        _accountFile = await this._getAccountFile();
+        if(!_accountFile.valid) {
+          console.log(_messageInvalidAccount);
+          process.exit();
+        }
+
+        await _platform.setup();
+        await _platform.connectToWallet(_accountFile.account);
+
+        _server = await _platform.createServer('poolRebalance', _tokenPair);
+        return await _platform.useServer(_server).rebalancePool();
+      
+      default: console.log(` >> Unknown feature to run: ${_feature}`);
+    }
   }
 
-  async _manageFeature() {
+  async _getAccountFile() {
+    const _filePath = await this.#readlineQuestion(' >> Enter account file: ');
+    const _account = this._openFile(_filePath);
 
+    return {
+      account: _account,
+      valid: !((_account == null || !this._validAccount(_account)))
+    };
   }
 
   _openFile(file) {
     try {
-      if(!fs.existsSync(file)) {
-        return null;
-      } 
-      const _data = JSON.parse(fs.readFileSync(file));
-      return _data;
+      if(!fs.existsSync(file)) { return null;} 
+      return JSON.parse(fs.readFileSync(file));
     } catch(e) {
       console.error("Cannot read. Check the file and try again.");
       return null;
