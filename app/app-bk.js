@@ -13,7 +13,7 @@ let platform = new DodoExPlatform(platformSetting);
 
 (async () => {
   await platform.setup();
-  await platform.connectToWallet();
+  await platform.connectToWallet({"username": "uname","password": "M@skuM3t@"});
 
   const s1 = await platform.createServer('tokenExchange', "500G:500DC");
   const s2 = await platform.createServer('tokenExchange', "500DC:500G");

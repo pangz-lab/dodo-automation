@@ -20,32 +20,28 @@ const featureParams = [
   cliRunner.features.poolRebalance,
 ];
 
-function _setup(feature, prev) {
-  cliRunner.setup({feature: feature, options: cmd.opts()})
-}
-
-function _dryRun() {
-
-}
-
-function _run() {
-
-}
-
-
 cmd
-  .option('-s, --setup <feature>', 'setting up a feature', _setup)
-  .option('-d, --dryrun <feature>', 'execute a dryrun of the feature', _dryRun)
-  .option('-r, --run <feature>', 'execute a feature', _run)
+  .option('--setup <feature>', 'setting up a feature')
+  .option('--dry-run <feature>', 'execute a dry-run or test run of the feature')
+  .option('--run <feature>', 'execute a feature')
+  .option('--token-pair <tokenPair>', 'specify the token pair to use')
+  // .requiredOption('-f, --feature <feature>', 'feature to execute', _app)
   // .addOption(new Option('-s, --setup <feature>', 'setting up a feature').choices([features.walletConnection]))
   // .addOption(new Option('-d, --dryrun <feature>', 'execute a dryrun of the feature').choices(featureParams))
   // .addOption(new Option('-r, --run <feature>', 'execute a feature').choices(featureParams));
 
 /**
-const options = cmd.opts();
-if (options.debug) console.log(options);
-console.log('pizza details:');
-if (options.small) console.log('- small pizza size');
-if (options.pizzaType) console.log(`- ${options.pizzaType}`);
-*/
+ const options = cmd.opts();
+ if (options.debug) console.log(options);
+ console.log('pizza details:');
+ if (options.small) console.log('- small pizza size');
+ if (options.pizzaType) console.log(`- ${options.pizzaType}`);
+ */
+ const options = cmd.opts();
 cmd.parse(process.argv);
+runApp();
+
+function runApp() {
+  const options =  cmd.opts();
+  cliRunner.app({options: options});
+}
