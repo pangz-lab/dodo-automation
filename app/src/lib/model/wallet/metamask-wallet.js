@@ -16,8 +16,8 @@ export class MetaMaskWallet extends WalletInterface {
     this.#selectors = this.#setting.selectors();
   }
 
-  async login(page) {
-    const _password = this.userAccount().password;
+  async login(page, account) {
+    const _password = account.password;
     const _selector = this.browserSetting().selector;
     const _passwordField = _selector.passwordField;
 

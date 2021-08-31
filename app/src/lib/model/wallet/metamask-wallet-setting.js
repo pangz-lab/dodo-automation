@@ -35,15 +35,15 @@ export class MetaMaskWalletSetting {
     };
   }
 
-  userAccount() {
-    return {
-      username: '',
-      password: this._getPassword(),
-    };
-  }
+  // userAccount() {
+  //   return {
+  //     username: '',
+  //     password: this._getPassword(),
+  //   };
+  // }
 
-  _getPassword() {
-    return 'M@skuM3t@';
-    // return 'M@skuM3t@fdfd';
-  }
+  // _getPassword() {
+  //   return 'M@skuM3t@';
+  //   // return 'M@skuM3t@fdfd';
+  // }
 }

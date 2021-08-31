@@ -92,7 +92,7 @@ export class DodoExPlatform
     return page;
   }
 
-  async connectToWallet() {
+  async connectToWallet(account) {
     try {
       // LoggingService.starting('Connecting to wallet...');
       // const metaMaskTab = await this.#pptrService.findTabWithUrl(
@@ -112,7 +112,7 @@ export class DodoExPlatform
 
       while(!_loginSuccessful && _loginAttempt <= retryCount) {
         LoggingService.processing('[ '+_loginAttempt+' of '+retryCount+' ] Trying to login...');
-        _loginSuccessful = await this.#wallet.login(page);
+        _loginSuccessful = await this.#wallet.login(page, account);
         _loginAttempt++;
       }
 
@@ -316,6 +316,10 @@ export class DodoExPlatform
   async _exit() {
     LoggingService.closing('DodoExPlatform closing..');
     await this.#browser.close();
+  }
+
+  async teardown() {
+    await this._exit();
   }
 
   _setupPreCheck() {
