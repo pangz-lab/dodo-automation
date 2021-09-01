@@ -10,7 +10,6 @@ export class AppConfig {
 
   static #appConfig = AppConfig._getConfig("app");
   static #chainConfig = AppConfig._getConfig("chain");
-  // static #platformSetting = AppConfig.#appConfig.platform;
 
   static _getConfig(config) {
     if(AppConfig._configFileData[config] == undefined) {
@@ -23,10 +22,6 @@ export class AppConfig {
   static app() {
     return AppConfig.#appConfig;
   }
-
-  // static platform() {
-  //   return AppConfig.#platformSetting;
-  // }
 
   static chain() {
     return AppConfig.#chainConfig;

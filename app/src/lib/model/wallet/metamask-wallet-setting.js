@@ -34,16 +34,4 @@ export class MetaMaskWalletSetting {
       selector: _app.selector,
     };
   }
-
-  // userAccount() {
-  //   return {
-  //     username: '',
-  //     password: this._getPassword(),
-  //   };
-  // }
-
-  // _getPassword() {
-  //   return 'M@skuM3t@';
-  //   // return 'M@skuM3t@fdfd';
-  // }
 }

@@ -156,13 +156,6 @@ export class DodoExPlatform
     try{
       this._setupPreCheck();
       LoggingService.starting("Token Exchange starting...");
-      // const _server = this._getActiveServer();
-      // await _server.page.bringToFront();
-      // const _pair = _server.tokenPair;
-      // const _operation = "Token Exchange";
-      // const _messageOpComplete = `${_operation} completed`;
-      // const _dodoPage = _server.page;
-      // await this.#tokenExchange.prepare(_dodoPage, _pair);
       const p = await this.prepareTokenExchange();
       const _operation = p.operation;
       const _dodoPage = p.dodoPage;
@@ -207,13 +200,6 @@ export class DodoExPlatform
     try {
       this._setupPreCheck();
       LoggingService.starting("Pool rebalance starting...");
-      // const _server = this._getActiveServer();
-      // await _server.page.bringToFront();
-
-      // const _pool = _server.pool;
-      // const _dodoPage = _server.page;
-      // const _operation = "Pool Rebalance";
-      // await this.#poolRebalance.prepare(_dodoPage, _pool);
       const p = await this.preparePoolRebalance();
       const _dodoPage = p.dodoPage;
       const _operation = p.operation;
@@ -276,7 +262,7 @@ export class DodoExPlatform
   async showMessage(page, message) {
     await this.#pptrService.showAlert(page, message);
   }
-  
+
   _setActiveServer(server) {
     this.#activeServer = server;
   }
