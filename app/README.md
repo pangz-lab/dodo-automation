@@ -3,7 +3,8 @@
 1. install node and npm - setup for dev
   - npm install -g typescript #for typescript
 2. install chrome
-3. install metamask in firefox extension; setup with the following setting
+3. install metamask extension; setup with the following setting
+  - setup from chromium not chrome
   - allow in private mode
   - allow automatic updates off
   - open in private mode and setup the accounts and coins
@@ -30,3 +31,8 @@
 - runner script
 - build
 - relocate config for retry, sleep et. al
+
+
+- wallet failed for certain period of time
+- open metamask from dodo to check the connection
+- in dry run, make sure the coins are set and ready for swapping

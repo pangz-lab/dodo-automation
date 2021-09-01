@@ -2,8 +2,8 @@
   "name": "dodo-automation",
   "version": "1.0.0",
   "description": "Automation for DodoExchange site",
-  "main": "app.mjs",
-  "bin": "app.mjs",
+  "main": "app.js",
+  "bin": "app.js",
   "type": "module",
   "directories": {
     "lib": "lib",
@@ -21,6 +21,7 @@
   "pkg": {
     "scripts": [
       "src/config/*.js",
+      "src/domain/*.js",
       "src/model/*.js",
       "src/model/platform/*.js",
       "src/model/platform/dodoex/*.js",

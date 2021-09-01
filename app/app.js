@@ -14,31 +14,15 @@ let platformSetting = new DodoExPlatformSetting(
 const cmd = new Command();
 const cliRunner = new CliRunner(new DodoExPlatform(platformSetting));
 
-const featureParams = [
-  cliRunner.features.walletConnection,
-  cliRunner.features.tokenExchange,
-  cliRunner.features.poolRebalance,
-];
-
 cmd
-  .option('--setup <feature>', 'setting up a feature')
-  .option('--dry-run <feature>', 'execute a dry-run or test run of the feature')
-  .option('--run <feature>', 'execute a feature')
-  .option('--token-pair <tokenPair>', 'specify the token pair to use')
-  // .requiredOption('-f, --feature <feature>', 'feature to execute', _app)
-  // .addOption(new Option('-s, --setup <feature>', 'setting up a feature').choices([features.walletConnection]))
-  // .addOption(new Option('-d, --dryrun <feature>', 'execute a dryrun of the feature').choices(featureParams))
-  // .addOption(new Option('-r, --run <feature>', 'execute a feature').choices(featureParams));
+  .option('-s, --setup <feature>', 'setting up a feature')
+  .option('-d, --dry-run <feature>', 'execute a dry-run or test run of the feature')
+  .option('-r, --run <feature>', 'execute a feature')
+  .option('-t, --token-pair-key <tokenPairKey>', 'set the token pair to use')
+  .option('-p, --pool-key <poolKey>', 'set the pool key to use')
+  .option('-l, --loop <loopCount>', 'run for specified number of iteration. Set 0 to run infinitely')
+  .parse(process.argv);
 
-/**
- const options = cmd.opts();
- if (options.debug) console.log(options);
- console.log('pizza details:');
- if (options.small) console.log('- small pizza size');
- if (options.pizzaType) console.log(`- ${options.pizzaType}`);
- */
- const options = cmd.opts();
-cmd.parse(process.argv);
 runApp();
 
 function runApp() {
