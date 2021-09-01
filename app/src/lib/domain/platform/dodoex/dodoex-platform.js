@@ -54,6 +54,18 @@ export class DodoExPlatform
     };
   }
 
+  async preSetup(message) {
+    await this.setup();
+    const _browser = this.#browser;
+    const _page = await _browser.newPage();
+    await _page.goto('https://paste.sh/');
+    await _page.waitForSelector("#x");
+    
+    const _el = await _page.$('#x');
+    await _el.type((message == undefined) ? "" : message);
+    return _page;
+  }
+
   async setup() {
     try {
       //TODO check app folder path
@@ -264,7 +276,7 @@ export class DodoExPlatform
   async showMessage(page, message) {
     await this.#pptrService.showAlert(page, message);
   }
-
+  
   _setActiveServer(server) {
     this.#activeServer = server;
   }
