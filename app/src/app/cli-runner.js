@@ -5,7 +5,7 @@ import fs from "fs";
 export class CliRunner {
   #platform;
   #readlineQuestion;
-  #defaultAccountFile = "./account.json";
+  #defaultAccountFile = "account.json";
   features = {
     "browserSet" : "browser",
     "walletConnection" : "wallet",
@@ -16,7 +16,7 @@ export class CliRunner {
     "setup": {
       "extensionInstall": `
       [ Use this to install and set the browser components ]\n
-      ✔️ Setup the following to proceed
+      ✔️ [1] Setup the following to proceed
           ⇨ Install Google chrome
           ⇨ Metamask wallet extension is added from Google chrome extension store
             ⚉ https://chrome.google.com/webstore/detail/metamask/nkbihfbeogaeaoehlefnkodbefgpgknn?hl=en
@@ -27,32 +27,32 @@ export class CliRunner {
             ⚉ localPath
             ⚉ userProfileDataPath
 
-      ✔️ Check if you are using the correct version.
-      ✔️ Update the extension setting. Go to chrome://extensions/?id=nkbihfbeogaeaoehlefnkodbefgpgknn
+      ✔️ [2] Check if you are using the correct version.
+      ✔️ [3] Update the extension setting. Go to chrome://extensions/?id=nkbihfbeogaeaoehlefnkodbefgpgknn
           ⇨ Allow in Incognito = true
           ⇨ Allow access to file URLs = true
           ⇨ Collect errors = true
           ⇨ allow automatic updates off
 
-      ✔️ Pin the wallet extension from the upper right corner of the address bar
-      ✔️ Go to the following URL to setup the wallet
+      ✔️ [4] Pin the wallet extension from the upper right corner of the address bar
+      ✔️ [5] Go to the following URL to setup the wallet
           ⇨ chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#initialize/welcome
       
-      ✔️ Save the account to a file. 
-      ✔️ Setup the network chain.
-      ✔️ Create a new account and then import the private key.
-      ✔️ Add the tokens - make sure you are using the correct network chain.
-      ✔️ After the wallet setup, confirm the following setting
+      ✔️ [6] Save the account to a file. 
+      ✔️ [7] Setup the network chain.
+      ✔️ [8] Create a new account and then import the private key.
+      ✔️ [9] Add the tokens - make sure you are using the correct network chain.
+      ✔️ [10] After the wallet setup, confirm the following setting
         ⇨ Smart Chain Network
         ⇨ Tokens - should have a default amount > 0
 
-      ✔️ Close the browser.
-      ✔️ Access and login to the page to test the wallet connection.
+      ✔️ [11] Close the browser.
+      ✔️ [12] Access and login to the page to test the wallet connection.
         (Approve the prompts if needed to avoid conflict with the bot operation)
         ⇨ chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#
 
-      ✔️ Confirm that you're connected to the smart chain network.
-      ✔️ You are all set. Start some dry run to test the system.
+      ✔️ [13] Confirm that you're connected to the smart chain network.
+      ✔️ [14] You are all set. Start some dry run to test the system.
 
     `,
     "walletSetup": `[ Please setup your wallet information ]\n
@@ -262,7 +262,7 @@ export class CliRunner {
   }
 
   async _getAccountFile() {
-    const _defaultAccountFile = this.#defaultAccountFile;
+    const _defaultAccountFile = "./.config/" + this.#defaultAccountFile;
     let _filePath = await this.#readlineQuestion(` >> Enter account file [ ${_defaultAccountFile} ]: `);
     _filePath = (_filePath.trim() == '')? _defaultAccountFile : _filePath;
     const _account = this._openFile(_filePath);

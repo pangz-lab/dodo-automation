@@ -20,12 +20,40 @@ cmd
   .option('-r, --run <feature>', 'execute a feature')
   .option('-t, --token-pair-key <tokenPairKey>', 'set the token pair to use')
   .option('-p, --pool-key <poolKey>', 'set the pool key to use')
-  .option('-l, --loop <loopCount>', 'run for specified number of iteration. Set 0 to run infinitely')
-  .parse(process.argv);
+  .option('-l, --loop <loopCount>', 'run for specified number of times. Set 0 to run infinitely')
+  .addHelpText('after', `
+
+  [ A 'feature' could be one of the following ]
+   Some features are not applicable to all parameters\n${getFeatures().join("\n")}
+
+  [ 'tokenPairKey' and 'poolKey' are keys existing in the app's configuration ]
+
+  [ Example call ] :
+
+    # Opens up the app browser to configure the wallet
+    # or confirm any setting
+
+    $ app -s browser
+
+    # Execute token exchange dry-run
+
+    $ app -d tokenex -t <tokenPairKey>
+    $ app -d tokenex -t <tokenPairKey> -l 0
+`
+);
+cmd.parse(process.argv);
 
 runApp();
 
 function runApp() {
   const options =  cmd.opts();
   cliRunner.app({options: options});
+}
+
+function getFeatures() {
+  let _list = [];
+  for (const [key, value] of Object.entries(cliRunner.features)) {
+    _list.push("    → " + value);
+  }
+  return _list;
 }
