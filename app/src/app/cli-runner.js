@@ -244,11 +244,10 @@ export class CliRunner {
         while(_loopRunner < _loopCount || _loopCount == 0) {
           LoggingService.running(`  >> Feature execution started: ${_feature} , looping ${_loopRunner+1} of ${_loopCount} ...`);
           await _platform.useServer(_server).exchangeToken();
-          
           LoggingService.running(`  >> Feature execution ended ...`);
-          LoggingService.running(`  >> ❄️❄️❄️ Frozen for ${_executionInterval} seconds ...`);
-          
+
           if(_loopRunner != _loopCount-1) {
+            LoggingService.running(`  >> ❄️❄️❄️ Frozen for ${_executionInterval} seconds ...`);  
             await _server.page.waitForTimeout(_executionInterval*1000);
           }
           _loopRunner++;
@@ -277,10 +276,10 @@ export class CliRunner {
         while(_loopRunner < _loopCount || _loopCount == 0) {
           LoggingService.running(`  >> Feature execution started: ${_feature} , looping ${_loopRunner+1} of ${_loopCount} ...`);
           await _platform.useServer(_server).rebalancePool();
-          
           LoggingService.running(`  >> Feature execution ended ...`);
-          LoggingService.running(`  >> ❄️❄️❄️ Frozen for ${_executionInterval} seconds ...`);
+
           if(_loopRunner != _loopCount-1) {
+            LoggingService.running(`  >> ❄️❄️❄️ Frozen for ${_executionInterval} seconds ...`);
             await _server.page.waitForTimeout(_executionInterval*1000);
           }
           _loopRunner++;
@@ -328,7 +327,7 @@ export class CliRunner {
       }
     };
 
-    const _txRunner = async function(serverList, run) {
+    const _txRunner = async function(serverList, run, groupNumber) {
       let _server;
       const _runner = (run)? async function(server, i) {
 
@@ -340,7 +339,8 @@ export class CliRunner {
       };
 
       for(var i = 0; i < serverList.length; i++) {
-        LoggingService.running(`  >> Feature execution started: ${_features[i]} ...`);
+        LoggingService.running(`  >> Group Number: ${groupNumber}`);
+        LoggingService.running(`  >> Feature execution started: ${_features[i]}, feature ${i+1} of ${_features.length} ...`);
         _server = serverList[i];
         await _platform.useServer(_server);
         await _runner(_server, i);
@@ -452,7 +452,7 @@ export class CliRunner {
 
     while(_loopRunner < _loopCount || _loopCount == 0) {
       LoggingService.running(`  >> Group feature execution started: ${_loopRunner+1} of ${_loopCount} ...`);
-      _lastServer = await _txRunner(_serverList, run);
+      _lastServer = await _txRunner(_serverList, run, `${_loopRunner+1} of ${_loopCount}`);
       
       LoggingService.running(`  >> ❄️❄️❄️  Group feature frozen for ${_groupExecutionInterval} seconds..`);
       LoggingService.running(`  >> Group feature execution ended: ${_loopRunner+1} of ${_loopCount} ...`);
