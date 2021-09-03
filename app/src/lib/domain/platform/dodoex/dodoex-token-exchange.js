@@ -66,7 +66,7 @@ export class DodoExTokenExchange {
     const _sourceTokenInputField = _selectors.sourceTokenInputField;
     const _postRetryMessage = "Waiting to allow confirmation...";
 
-    LoggingService.processing("Settting token value...");
+    LoggingService.processing("Setting token value...");
 
     await _pptrService.clearInput(page, _sourceTokenInputField);
     await page.type(_sourceTokenInputField, _tokenValue, {delay: 100});

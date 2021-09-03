@@ -28,4 +28,8 @@ export class LoggingService {
   static processing(message) {
     console.log('[⏳]      ➜  '+message);
   }
+
+  static running(message) {
+    console.log('[⚡️⚡️⚡️⚡️⚡️] '+message);
+  }
 }

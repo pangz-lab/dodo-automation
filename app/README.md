@@ -36,3 +36,7 @@
 - wallet failed for certain period of time
 - open metamask from dodo to check the connection
 - in dry run, make sure the coins are set and ready for swapping
+
+- multi runner
+- -m -f [ tokenex, tokenex, poolreb ] -p [ p1, p2, p3 ]
+- -m -f [ tokenex, tokenex, poolreb ] -p [ p1, p2, p3 ] -i 

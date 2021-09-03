@@ -15,8 +15,8 @@
       "500DC": { "symbol": "500DC", "address": "0xf92aa7543e38684afec679ceffae02675dccbdfc" }
     },
     "pair": {
-      "TPair500G:DC": { "valueRatio": [1,5], "source": "500G", "target": "500DC" },
-      "TPair500DC:G": { "valueRatio": [55,1], "source": "500DC", "target": "500G" }
+      "TP500G:DC": { "valueRatio": [1,5], "source": "500G", "target": "500DC" },
+      "TP500DC:G": { "valueRatio": [55,1], "source": "500DC", "target": "500G" }
     }
   }
 }

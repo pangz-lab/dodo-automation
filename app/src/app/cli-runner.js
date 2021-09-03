@@ -1,6 +1,7 @@
 import readline from 'readline';
 import util from 'util';
 import fs from "fs";
+import { LoggingService } from '../lib/service/logging-service.js';
 
 export class CliRunner {
   #platform;
@@ -11,6 +12,11 @@ export class CliRunner {
     "walletConnection" : "wallet",
     "tokenExchange" : "tokenex",
     "poolRebalance" : "poolreb",
+    "multiRun" : "multirun",
+  };
+  #featureMethods = {
+    "tokenex" : { name: "tokenex", serverKey: "tokenExchange", prepMethod: "prepareTokenExchange", runMethod: "exchangeToken" },
+    "poolreb" : { name: "poolreb", serverKey: "poolRebalance", prepMethod: "preparePoolRebalance" , runMethod: "rebalancePool" }
   };
   #messages = {
     "setup": {
@@ -92,8 +98,17 @@ export class CliRunner {
     return this.#platform;
   }
 
+  _featureToArray() {
+    let _list = [];
+    for (const [key, value] of Object.entries(this.features)) {
+      _list.push(value);
+    }
+    return _list;
+  }
+
   async app(param) {
     const options = param.options;
+    if(options.debug) { return console.log(param); };
     if(options.setup) { return this._setup(param) };
     if(options.dryRun) { return this._dryRun(param) };
     if(options.run) { return this._run(param) };
@@ -185,7 +200,10 @@ export class CliRunner {
         _server = await _platform.createServer('poolRebalance', _poolKey);
         await _platform.showMessage(_server.page, _dryRunMessage);
         return await _platform.useServer(_server).preparePoolRebalance();
-      
+
+      case this.features.multiRun:
+        return await this._multiRun(param);
+
       default:
         console.log(` >> Unknown feature to dry-run: ${_feature}`);
         process.exit();
@@ -201,8 +219,8 @@ export class CliRunner {
     const _messageTokenPair = this.#messages.invalidTokenPair;
     const _messagePoolKey = this.#messages.invalidPoolKey;
     const _loopCount = this._getLoopCount(param);
+    const _executionInterval = this._getExecutionInterval(param);
     let _loopRunner = 0;
-    
     let _server, _accountFile;
 
     switch(_feature) {
@@ -224,7 +242,15 @@ export class CliRunner {
         _server = await _platform.createServer('tokenExchange', _tokenPairKey);
         
         while(_loopRunner < _loopCount || _loopCount == 0) {
+          LoggingService.running(`  >> Feature execution started: ${_feature} , looping ${_loopRunner+1} of ${_loopCount} ...`);
           await _platform.useServer(_server).exchangeToken();
+          
+          LoggingService.running(`  >> Feature execution ended ...`);
+          LoggingService.running(`  >> ❄️❄️❄️ Frozen for ${_executionInterval} seconds ...`);
+          
+          if(_loopRunner != _loopCount-1) {
+            await _server.page.waitForTimeout(_executionInterval*1000);
+          }
           _loopRunner++;
         }
 
@@ -249,16 +275,194 @@ export class CliRunner {
         _server = await _platform.createServer('poolRebalance', _poolKey);
 
         while(_loopRunner < _loopCount || _loopCount == 0) {
+          LoggingService.running(`  >> Feature execution started: ${_feature} , looping ${_loopRunner+1} of ${_loopCount} ...`);
           await _platform.useServer(_server).rebalancePool();
+          
+          LoggingService.running(`  >> Feature execution ended ...`);
+          LoggingService.running(`  >> ❄️❄️❄️ Frozen for ${_executionInterval} seconds ...`);
+          if(_loopRunner != _loopCount-1) {
+            await _server.page.waitForTimeout(_executionInterval*1000);
+          }
           _loopRunner++;
         }
 
+        return process.exit();
+
+      case this.features.multiRun:
+        await this._multiRun(param, true);
         return process.exit();
       
       default:
         console.log(` >> Unknown feature to run: ${_feature}`);
         process.exit();
     }
+  }
+
+  async _multiRun(param, run) {
+    const _features = param.options.multiRun;
+    const _featuresArguments = param.options.multiRunArgs;
+    const _messageInvalidAccount = this.#messages.invalidAccountFile;
+    const _platform = this._platformObj();
+    const _featureMethods = this.#featureMethods;
+    const _dryRunMessage = this.#messages.dryRun;
+    const _loopCount = this._getLoopCount(param);
+    const _executionInterval = this._getExecutionInterval(param);
+    const _groupExecutionInterval = this._getGroupExecutionInterval(param);
+    const _allowedFeatures = [
+      _featureMethods.tokenex.name,
+      _featureMethods.poolreb.name
+    ];
+    let _loopRunner = 0;
+
+    const _txPrepMethods = async function(platform, feature) {
+      switch(feature) {
+        case _allowedFeatures[0] : return await platform.prepareTokenExchange();
+        case _allowedFeatures[1] : return await platform.preparePoolRebalance();
+      }
+    };
+
+    const _txRunMethods = async function(platform, feature) {
+      switch(feature) {
+        case _allowedFeatures[0] : return await platform.exchangeToken();
+        case _allowedFeatures[1] : return await platform.rebalancePool();
+      }
+    };
+
+    const _txRunner = async function(serverList, run) {
+      let _server;
+      const _runner = (run)? async function(server, i) {
+
+        await _txRunMethods(_platform, _features[i]);
+      } : async function(server, i) {
+
+        await _platform.showMessage(server.page, _dryRunMessage);
+        await _txPrepMethods(_platform, _features[i]);
+      };
+
+      for(var i = 0; i < serverList.length; i++) {
+        LoggingService.running(`  >> Feature execution started: ${_features[i]} ...`);
+        _server = serverList[i];
+        await _platform.useServer(_server);
+        await _runner(_server, i);
+
+        LoggingService.running(`  >> Feature execution ended: ${_features[i]} ...`);
+        LoggingService.running(`  >> ❄️❄️❄️  Frozen for ${_executionInterval} seconds ...`);
+        await _server.page.waitForTimeout(_executionInterval*1000);
+      }
+
+      return _server;
+    }
+
+    const _cleanParameters = function() {
+      _features.pop();
+      _features.shift();
+      _featuresArguments.pop();
+      _featuresArguments.shift();
+    }
+
+    const _formatIsCorrect = function(p) {
+      const _length = p.length;
+      return (p[0] == '[' && p[_length-1] == ']')
+    }
+
+    const _allFeatureIsAllowed = function(features) {
+      for (var i = 0; i < features.length; i++) {
+        if(_allowedFeatures.indexOf(features[i]) === -1) {
+          return false;
+        }
+      }
+
+      return true;
+    }
+
+    const _featureAndArgumentsMatched = function(features, featuresArguments) {
+      return (features.length === featuresArguments.length);
+    }
+
+    const _allowedFeaturesList = function() {
+      let _list = [];
+      _allowedFeatures.forEach( f => {
+        _list.push("    → " + f);
+      });
+
+      return _list;
+    }
+
+    const _createServer = async function() {
+      let _serverList = [];
+      let _server = [];
+
+      for(var x = 0; x < _features.length; x++) {
+        _server = await _platform.createServer(
+          _featureMethods[_features[x]].serverKey,
+          _featuresArguments[x]
+        );
+        _serverList.push(_server);
+      }
+
+      return _serverList;
+    }
+
+    if(!_featuresArguments) {
+      console.log(
+        ` >> Features arguments do not exist.\n`+
+        ` >> Set the value for -n or check the --help for more details.`
+      );
+      return process.exit();
+    }
+
+    if(
+      !_formatIsCorrect(param.options.multiRun) ||
+      !_formatIsCorrect(param.options.multiRunArgs)
+    ) {
+      console.log(
+        ` >> Features/Feature arguments are not properly formatted.\n`+
+        ` >> Enclose your features within a [](square brackets)\n\n`+
+        ` i.e. -m [ feature1 feature2... ] -n [ featureArgs1 featureArgs2... ]`
+      );
+      return process.exit();
+    }
+
+    _cleanParameters();
+    if(!_allFeatureIsAllowed(_features)) {
+      console.log(
+        ` >> Unknown feature is set.\n  `+
+        ` >> Only the following features are allowed.\n`+
+        _allowedFeaturesList().join("\n")
+      );
+
+      return process.exit();
+    }
+
+    if(!_featureAndArgumentsMatched(_features, _featuresArguments)) {
+      console.log(` >> Feature and feature arguments should be matched.\n `);
+      return process.exit();
+    }
+
+    const _accountFile = await this._getAccountFile();
+    if(!_accountFile.valid) {
+      console.log(_messageInvalidAccount);
+      process.exit();
+    }
+
+    await _platform.setup();
+    await _platform.connectToWallet(_accountFile.account);
+    const _serverList = await _createServer();
+    let _lastServer;
+
+    while(_loopRunner < _loopCount || _loopCount == 0) {
+      LoggingService.running(`  >> Group feature execution started: ${_loopRunner+1} of ${_loopCount} ...`);
+      _lastServer = await _txRunner(_serverList, run);
+      
+      LoggingService.running(`  >> ❄️❄️❄️  Group feature frozen for ${_groupExecutionInterval} seconds..`);
+      LoggingService.running(`  >> Group feature execution ended: ${_loopRunner+1} of ${_loopCount} ...`);
+      
+      if(_loopRunner != _loopCount-1) {
+        await _lastServer.page.waitForTimeout(_groupExecutionInterval*1000);
+      }
+      _loopRunner++;
+    }
+
   }
 
   async _getAccountFile() {
@@ -288,6 +492,20 @@ export class CliRunner {
       return false;
     }
     return true;
+  }
+
+  _getExecutionInterval(param) {
+    return (
+      (param.options.interval)?
+        parseInt(param.options.interval) : 0
+    );
+  }
+
+  _getGroupExecutionInterval(param) {
+    return (
+      (param.options.groupInterval)?
+        parseInt(param.options.groupInterval) : 0
+    );
   }
 
   _getLoopCount(param) {
