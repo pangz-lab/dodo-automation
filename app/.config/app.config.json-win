@@ -22,8 +22,8 @@
             "version" : "10.0.3_0",
             "folderName": "nkbihfbeogaeaoehlefnkodbefgpgknn",
             "browserUrl": "chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#unlock",
-            "localPath": "~/.config/google-chrome/Default/Extensions/nkbihfbeogaeaoehlefnkodbefgpgknn/",
-            "userProfileDataPath": "/home/owner/.config/google-chrome/Default/"
+            "localPath": "C:/Users/pangz/AppData/Local/Google/Chrome/User Data/Default/Extensions/nkbihfbeogaeaoehlefnkodbefgpgknn/",
+            "userProfileDataPath": "C:/Users/pangz/AppData/Local/Chromium/User Data/Profile 1/"
           },
           "app": {
             "chainTokenSymbol": "BNB",
