@@ -43,6 +43,6 @@ export class LoggingService {
       return v.toString().padStart(2, '0')
     };
 
-    return `${pad(date.getFullYear())}/${pad(date.getMonth())}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
+    return `${date.getFullYear()}/${pad(date.getMonth())}/${pad(date.getDate())} ${pad(date.getHours())}:${pad(date.getMinutes())}:${pad(date.getSeconds())}`;
   }
 }

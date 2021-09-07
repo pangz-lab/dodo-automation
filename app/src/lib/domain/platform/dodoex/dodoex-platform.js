@@ -159,6 +159,7 @@ export class DodoExPlatform
   }
 
   async exchangeToken()  {
+    let _activePage;
     try{
       this._setupPreCheck();
       LoggingService.starting("Token Exchange starting...");
@@ -167,6 +168,7 @@ export class DodoExPlatform
       const _operation = p.operation;
       const _dodoPage = p.dodoPage;
       const _messageOpComplete = p.messageOpComplete;
+      _activePage = _dodoPage;
 
       if(!await this.#tokenExchange.allowOperation()) {
         LoggingService.closing(_messageOpComplete);
@@ -198,6 +200,7 @@ export class DodoExPlatform
     } catch(e) {
       
       const _message = "Token Exchange error!";
+      await this._getErrorScreenshot(_activePage, 'tokenex');
       LoggingService.errorMessage(_message);
       throw new Error(e);
     }
@@ -218,6 +221,7 @@ export class DodoExPlatform
   }
 
   async rebalancePool() {
+    let _activePage;
     try {
       this._setupPreCheck();
       LoggingService.starting("Pool rebalance starting...");
@@ -225,6 +229,7 @@ export class DodoExPlatform
       const _genSetting = this.#generalSetting;
       const _dodoPage = p.dodoPage;
       const _operation = p.operation;
+      _activePage = _dodoPage;
 
       if(!await this.#poolRebalance.allowOperation()) {
         LoggingService.closing("Rebalance completed");
@@ -255,6 +260,7 @@ export class DodoExPlatform
 
     } catch (e) {
       const _message = "Pool Rebalance error!";
+      await this._getErrorScreenshot(_activePage, 'poolreb');
       LoggingService.errorMessage(_message);
       throw new Error(e);
     }
@@ -318,7 +324,7 @@ export class DodoExPlatform
         targetToken.name
       )
     );
-    // await dodoPage.bringToFront();
+    
     return dodoPage;
   }
 
@@ -328,7 +334,7 @@ export class DodoExPlatform
     await _dodoPage.goto(
       this.#setting.poolRebalanceURL(poolAddress)
     );
-    // await _dodoPage.bringToFront();
+
     return _dodoPage;
   }
 
@@ -463,5 +469,17 @@ export class DodoExPlatform
       LoggingService.errorMessage("Configuration error. Please check chain config and try again");
       throw new Error("Token pair not found!");
     }
+  }
+
+  async _getErrorScreenshot(page, feature) {
+    const _genSetting = this.#generalSetting.errorReporting;
+    if(!_genSetting.getScreenshot) { return; }
+
+    const _name = `error-${feature}-`+Date.now((new Date()))+'.png';
+    const _scPath = _genSetting.screenshotPath+'/'+_name;
+
+    LoggingService.processing("Taking error screenshot...");
+    await page.screenshot({ path: _scPath});
+    LoggingService.processing(`Saved to ${_scPath}`);
   }
 }

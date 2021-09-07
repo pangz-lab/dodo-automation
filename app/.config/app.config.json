@@ -1,5 +1,9 @@
 {
   "general": {
+    "errorReporting": {
+      "getScreenshot": true,
+      "screenshotPath": "./.screenshots/.errors"
+    },
     "approval": {
       "retryCount": 20,
       "retryIntervalInMS": 15000
