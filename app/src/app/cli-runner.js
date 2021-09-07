@@ -1,3 +1,7 @@
+/**
+ * Author: Pangz
+ * Email: pangz.lab@gmail.com
+ */
 import readline from 'readline';
 import util from 'util';
 import fs from "fs";
