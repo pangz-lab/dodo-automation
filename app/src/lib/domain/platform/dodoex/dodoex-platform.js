@@ -1,3 +1,7 @@
+/**
+ * Author: Pangz
+ * Email: pangz.lab@gmail.com
+ */
 import { BlockchainPlatformInterface } from "../../../model/interface/blockchain-platform-interface.js";
 import { DodoExTokenExchange } from "./dodoex-token-exchange.js";
 import { DodoExPoolRebalance } from "./dodoex-pool-rebalance.js";
@@ -240,7 +244,7 @@ export class DodoExPlatform
           LoggingService.processing(" Running an approval retry ...");
           await _dodoPage.waitForTimeout(_genSetting.retryIntervalInMS);
         }
-        
+
         _retryCount++;
 
       } while(!_postApprovalSuccessful && _retryCount < _allowedApprovalRetry)

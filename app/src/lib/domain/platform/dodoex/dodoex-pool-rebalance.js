@@ -1,3 +1,7 @@
+/**
+ * Author: Pangz
+ * Email: pangz.lab@gmail.com
+ */
 import { LoggingService } from "../../../service/logging-service.js";
 
 export class DodoExPoolRebalance {

@@ -1,3 +1,7 @@
+/**
+ * Author: Pangz
+ * Email: pangz.lab@gmail.com
+ */
 import { WalletInterface } from "../interface/wallet-interface.js";
 import { LoggingService } from "../../service/logging-service.js"
 import { AppService } from  "../../service/app-service.js";

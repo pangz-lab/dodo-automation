@@ -1,3 +1,7 @@
+/**
+ * Author: Pangz
+ * Email: pangz.lab@gmail.com
+ */
 export class LoggingService {
   static starting(message) {
     console.log('[ '+LoggingService._t()+' ][✅] '+message);

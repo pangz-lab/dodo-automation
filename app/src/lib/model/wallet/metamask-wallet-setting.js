@@ -1,3 +1,7 @@
+/**
+ * Author: Pangz
+ * Email: pangz.lab@gmail.com
+ */
 import { AppConfig } from "../../config/app-config.js";
 
 export class MetaMaskWalletSetting {

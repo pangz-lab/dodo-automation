@@ -1,3 +1,7 @@
+/**
+ * Author: Pangz
+ * Email: pangz.lab@gmail.com
+ */
 export class PuppeteerService {
 
   async findTabWithUrl(browser, tabUrl) {

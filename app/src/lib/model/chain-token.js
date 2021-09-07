@@ -1,4 +1,7 @@
-
+/**
+ * Author: Pangz
+ * Email: pangz.lab@gmail.com
+ */
 export class ChainToken {
   #name;
   #value;

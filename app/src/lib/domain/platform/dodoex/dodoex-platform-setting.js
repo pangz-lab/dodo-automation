@@ -1,3 +1,7 @@
+/**
+ * Author: Pangz
+ * Email: pangz.lab@gmail.com
+ */
 import { PlatformSettingInterface } from "../../../model/interface/platform-setting-interface.js";
 import { AppConfig } from "../../../config/app-config.js";
 
