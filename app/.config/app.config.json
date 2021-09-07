@@ -1,5 +1,9 @@
 {
   "general": {
+    "approval": {
+      "retryCount": 20,
+      "retryIntervalInMS": 15000
+    },
     "poolRebalance": {
       "alwaysPerformRebalance": true,
       "getConfirmationScreenshot": false,

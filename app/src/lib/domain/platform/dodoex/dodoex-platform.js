@@ -11,6 +11,7 @@ import { ChainPool } from "../../../model/chain-pool.js";
 export class DodoExPlatform 
   extends BlockchainPlatformInterface {
   #setting;
+  #generalSetting;
   #browser;
   #appService;
   #browserLaunchSetting;
@@ -39,6 +40,7 @@ export class DodoExPlatform
       this.#appService
     );
     this.#pptrService = this.#appService.puppeteerService;
+    this.#generalSetting = this.#setting.generalSetting();
 
     const _walletBrowserSetting = this.#setting.wallet.browserSetting();
     const _extensionPath = _walletBrowserSetting.extension.path;
@@ -157,6 +159,7 @@ export class DodoExPlatform
       this._setupPreCheck();
       LoggingService.starting("Token Exchange starting...");
       const p = await this.prepareTokenExchange();
+      const _genSetting = this.#generalSetting;
       const _operation = p.operation;
       const _dodoPage = p.dodoPage;
       const _messageOpComplete = p.messageOpComplete;
@@ -166,9 +169,23 @@ export class DodoExPlatform
         return await Promise.resolve(false);
       }
 
-      await this.#tokenExchange.execute();
-      await this.#wallet.approveTransaction(this.#browser, _dodoPage, _operation);
-      await this._postApprovalCheck(_dodoPage, _operation);
+      let _retryCount = 0;
+      let _postApprovalSuccessful = false;
+      const _allowedApprovalRetry = _genSetting.retryCount;
+
+      do {
+        await this.#tokenExchange.execute();
+        await this.#wallet.approveTransaction(this.#browser, _dodoPage, _operation);
+        _postApprovalSuccessful = await this._postApprovalCheck(_dodoPage, _operation);
+        
+        if(_retryCount > 0 && !_postApprovalSuccessful) {
+          LoggingService.processing(" Running an approval retry ...");
+          await _dodoPage.waitForTimeout(_genSetting.retryIntervalInMS);
+        }
+
+        _retryCount++;
+
+      } while(!_postApprovalSuccessful && _retryCount < _allowedApprovalRetry)
       
       await _dodoPage.waitForTimeout(15000);
       LoggingService.closing(_messageOpComplete);
@@ -201,6 +218,7 @@ export class DodoExPlatform
       this._setupPreCheck();
       LoggingService.starting("Pool rebalance starting...");
       const p = await this.preparePoolRebalance();
+      const _genSetting = this.#generalSetting;
       const _dodoPage = p.dodoPage;
       const _operation = p.operation;
 
@@ -209,9 +227,23 @@ export class DodoExPlatform
         return await Promise.resolve(false);
       }
 
-      await this.#poolRebalance.execute();
-      await this.#wallet.approveTransaction(this.#browser, _dodoPage, _operation);
-      await this._postApprovalCheck(_dodoPage, _operation);
+      let _retryCount = 0;
+      let _postApprovalSuccessful = false;
+      const _allowedApprovalRetry = _genSetting.retryCount;
+
+      do {
+        await this.#poolRebalance.execute();
+        await this.#wallet.approveTransaction(this.#browser, _dodoPage, _operation);
+        _postApprovalSuccessful = await this._postApprovalCheck(_dodoPage, _operation);
+        
+        if(_retryCount > 0 && !_postApprovalSuccessful) {
+          LoggingService.processing(" Running an approval retry ...");
+          await _dodoPage.waitForTimeout(_genSetting.retryIntervalInMS);
+        }
+        
+        _retryCount++;
+
+      } while(!_postApprovalSuccessful && _retryCount < _allowedApprovalRetry)
       
       await _dodoPage.waitForTimeout(15000);
       LoggingService.closing("Rebalance completed");

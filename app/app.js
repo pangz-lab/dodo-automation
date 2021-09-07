@@ -47,6 +47,7 @@ cmd
     $ app -d tokenex -t <tokenPairKey> -l 0
 `
 );
+cmd.version("1.3.0");
 cmd.parse(process.argv);
 
 try {
