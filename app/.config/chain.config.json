@@ -2,7 +2,15 @@
   "pool" : {
     "POOL500G:DC": {
       "address" : "0xc88b273e93b0da6a27340708c3575700b5e8c615",
-      "tradeSpeedPercent": 0.5,
+      "tradeSpeedPercent": 2,
+      "tokenPair": {
+        "source": { "key" : "500G", "value": 100 },
+        "target": { "key" : "500DC", "value": 5500 }
+      }
+    },
+    "POOL500EF:GH": {
+      "address" : "0xc88b273e93b0da6a27340708c3575700b5e8c615",
+      "tradeSpeedPercent": 2,
       "tokenPair": {
         "source": { "key" : "500G", "value": 100 },
         "target": { "key" : "500DC", "value": 5500 }
@@ -12,11 +20,15 @@
   "token" : {
     "collection": {
       "500G": { "symbol": "500G", "address": "0xae60930454458f5d04cae41a9d127e786e90f40a" },
-      "500DC": { "symbol": "500DC", "address": "0xf92aa7543e38684afec679ceffae02675dccbdfc" }
+      "500DC": { "symbol": "500DC", "address": "0xf92aa7543e38684afec679ceffae02675dccbdfc" },
+      "500EF": { "symbol": "500EF", "address": "EF_ADDRESS" },
+      "500GH": { "symbol": "500GH", "address": "GH_ADDRESS" }
     },
     "pair": {
       "TP500G:DC": { "valueRatio": [1,5], "source": "500G", "target": "500DC" },
-      "TP500DC:G": { "valueRatio": [55,1], "source": "500DC", "target": "500G" }
+      "TP500DC:G": { "valueRatio": [55,1], "source": "500DC", "target": "500G" },
+      "TP500EF:GH": { "valueRatio": [66,2], "source": "500EF", "target": "500GH" },
+      "TP500GH:EF": { "valueRatio": [55,1], "source": "500GH", "target": "500EF" }
     }
   }
 }

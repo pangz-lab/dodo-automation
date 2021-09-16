@@ -2,6 +2,7 @@
  * Author: Pangz
  * Email: pangz.lab@gmail.com
  */
+import fs from "fs";
 import { BlockchainPlatformInterface } from "../../../model/interface/blockchain-platform-interface.js";
 import { DodoExTokenExchange } from "./dodoex-token-exchange.js";
 import { DodoExPoolRebalance } from "./dodoex-pool-rebalance.js";
@@ -12,6 +13,7 @@ import { ChainTokenPair } from "../../../model/chain-token-pair.js";
 import { ChainToken } from "../../../model/chain-token.js";
 import { ChainPool } from "../../../model/chain-pool.js";
 
+
 export class DodoExPlatform 
   extends BlockchainPlatformInterface {
   #setting;
@@ -19,6 +21,7 @@ export class DodoExPlatform
   #browser;
   #appService;
   #browserLaunchSetting;
+  #filePathExist;
   #pptrService;
   #tokenExchange;
   #poolRebalance;
@@ -49,6 +52,8 @@ export class DodoExPlatform
     const _walletBrowserSetting = this.#setting.wallet.browserSetting();
     const _extensionPath = _walletBrowserSetting.extension.path;
     const _profileDataPath = _walletBrowserSetting.userProfile.dataPath;
+    this.#filePathExist = (fs.existsSync(_extensionPath) && fs.existsSync(_profileDataPath));
+
     this.#browserLaunchSetting = {
       headless: false,
       defaultViewport: null,
@@ -74,7 +79,9 @@ export class DodoExPlatform
 
   async setup() {
     try {
-      //TODO check app folder path
+      if(!this.#filePathExist) {
+        // throw new Error("localPath or userProfileDataPath does not exist. Please check your setting [ app.config.json ]");
+      }
       LoggingService.processing('Setting up...');
       this.#browser = await this
         .#appService
@@ -222,8 +229,8 @@ export class DodoExPlatform
     try {
       this._setupPreCheck();
       LoggingService.starting("Pool rebalance starting...");
-      const p = await this.preparePoolRebalance();
       const _genSetting = this.#generalSetting;
+      const p = await this.preparePoolRebalance();
       const _dodoPage = p.dodoPage;
       const _operation = p.operation;
 
@@ -244,6 +251,7 @@ export class DodoExPlatform
         if(_retryCount > 0 && !_postApprovalSuccessful) {
           LoggingService.processing(" Running an approval retry ...");
           await _dodoPage.waitForTimeout(_genSetting.retryIntervalInMS);
+          await this.preparePoolRebalance();
         }
 
         _retryCount++;

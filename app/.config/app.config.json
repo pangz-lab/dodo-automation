@@ -41,7 +41,7 @@
     "dodoex": {
       "webUrl": "https://app.dodoex.io",
       "endpoints": {
-        "exchange": "/exchange",
+        "exchange": "exchange/",
         "poolList": "/pool/list"
       },
       "network": "bsc-mainnet",
